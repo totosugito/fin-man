@@ -7,7 +7,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import {BreadCrumbDashboard} from "@/components/app/breadcrumb";
 import {PageTitle, AppNavbar} from "@/components/app";
 import {SkeTable} from "@/components/custom/skeleton";
 import {DialogModal, DialogModalForm} from "@/components/custom/components";
@@ -87,14 +86,12 @@ function RouteComponent() {
       email: z.string().email("Invalid email").min(1, "Email is required"),
       password: z.string({required_error: "Password is required"}).min(8, "Password must be at least 8 characters"),
       role: z.string().min(1, "Role is required"),
-      sub_contractor: z.array(z.string())
     },
     defaultValue: {
       name: "",
       email: "",
       password: "",
       role: "",
-      sub_contractor: []
     }
   });
 
@@ -135,8 +132,8 @@ function RouteComponent() {
         userDeleteMutation.mutate(
           {body: {userId: item?.id}},
           {
-            onSuccess: () => {
-              queryClient.invalidateQueries({queryKey: ['admin-user-list']});
+            onSuccess: async () => {
+              await queryClient.invalidateQueries({queryKey: ['admin-user-list']});
               showNotifSuccess({message: "User deleted successfully"});
             },
             onError: (error: any) => showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message}),
@@ -159,8 +156,8 @@ function RouteComponent() {
       onCancelClick: () => setConfirmationCreate(null),
       onConfirmClick: (body: Record<string, any>) => {
         userCreateMutation.mutate({body}, {
-          onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['admin-user-list']});
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: ['admin-user-list']});
             showNotifSuccess({message: "User created successfully"});
             setConfirmationCreate(null);
           },
@@ -186,10 +183,9 @@ function RouteComponent() {
       textConfirm: "Update",
       onCancelClick: () => setConfirmationPut(null),
       onConfirmClick: (body: Record<string, any>) => {
-        let {email, ...newBody} = body;
-        userPutMutation.mutate({id: item?.id, body: {...newBody}}, {
-          onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['admin-user-list']});
+        userPutMutation.mutate({id: item?.id, body: body}, {
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: ['admin-user-list']});
             showNotifSuccess({message: "User updated successfully"});
             setConfirmationPut(null);
           },
@@ -218,11 +214,10 @@ function RouteComponent() {
         }
 
         const newBody = {
-          userId: item?.id,
           newPassword: body.password
         }
 
-        userUpdatePasswordMutation.mutate({body: newBody}, {
+        userUpdatePasswordMutation.mutate({id: item?.id, body: newBody}, {
           onSuccess: () => {
             showNotifSuccess({message: "User updated password successfully"});
             setConfirmationUpdatePassword(null);
@@ -240,8 +235,6 @@ function RouteComponent() {
       <AppNavbar title={
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadCrumbDashboard/>
-            <BreadcrumbSeparator/>
             <BreadcrumbItem>
               <BreadcrumbPage>User List</BreadcrumbPage>
             </BreadcrumbItem>

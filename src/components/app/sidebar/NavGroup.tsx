@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {NavCollapsible, NavItem, NavLink, type NavGroup} from './types'
+import {cn} from "@/lib/utils";
 
 export function NavGroup({title, items, className}: NavGroup) {
   const {state} = useSidebar()
@@ -59,16 +60,19 @@ const NavBadge = ({children}: { children: ReactNode }) => (
 
 const SidebarMenuLink = ({item, href}: { item: NavLink; href: string }) => {
   const {setOpenMobile} = useSidebar()
+  const status = checkIsActive(href, item)
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
         asChild
-        isActive={checkIsActive(href, item)}
+        isActive={status}
         tooltip={item.title}
+        className={cn("data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground " +
+          "data-[active=true]:hover:bg-sidebar-primary/90")}
       >
-        <Link to={item.url} onClick={() => setOpenMobile(false)}>
+        <Link to={item.url} onClick={() => setOpenMobile(false)} >
           {item.icon && <item.icon/>}
-          <span>{item.title}</span>
+          <span>{item.title} aa</span>
           {item.badge && <NavBadge>{item.badge}</NavBadge>}
         </Link>
       </SidebarMenuButton>
@@ -158,7 +162,7 @@ const SidebarMenuCollapsedDropdown = ({
             <DropdownMenuItem key={`${sub.title}-${sub.url}`} asChild>
               <Link
                 to={sub.url}
-                className={`${checkIsActive(href, sub) ? 'bg-secondary' : ''}`}
+                className={`${checkIsActive(href, sub) ? 'bg-sidebar-primary' : ''}`}
               >
                 {sub.icon && <sub.icon/>}
                 <span className='max-w-52 text-wrap'>{sub.title}</span>

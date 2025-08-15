@@ -1,11 +1,11 @@
-import AppLogo from "@/assets/app/well-perfo.png";
+import AppLogo from "@/assets/app/logo.png";
 export const APP_CONFIG = {
-  prefixStore: "fin-mot",
+  prefixStore: "fin-man",
   isDev: false,
   dayFormat: "yyyy-MM-dd",
   app: {
-    name: "FinMon",
-    description: "Financial Monitoring",
+    name: "FinMan",
+    description: "Financial Management",
     logo: AppLogo,
     version: "1.0.0",
   },

@@ -1,4 +1,4 @@
-import {ColumnHeader, TableData} from "@/components/custom/table/index.ts";
+import {ColumnHeader, TableData} from "@/components/custom/table";
 import {useMemo} from "react";
 import {useTranslation} from "react-i18next";
 import {IoMenu} from "react-icons/io5";
@@ -15,7 +15,7 @@ import {Badge} from "@/components/ui/badge";
 import {CiTrash, CiEdit, CiLock} from "react-icons/ci";
 
 type Props = {
-  data: any[];
+  data: Record<string, any>;
   loading: boolean;
   onCreateClicked: () => void;
   onDeleteClicked: (item: any) => void;
@@ -34,22 +34,22 @@ const TableUser = ({data, loading, onCreateClicked, onDeleteClicked, onEditClick
       enableSorting: false,
       disableSortBy: true,
       indexed: true,
-      header: ({column}) => {
+      header: ({column}: any) => {
         return (<ColumnHeader column={column} title={"No"} className={"justify-center"}/>)
       },
-      cell: ({row, table}) => {
+      cell: ({row, table}: any) => {
         return <div
-          className="text-center">{(table.getSortedRowModel()?.flatRows?.findIndex((flatRow) => flatRow.id === row.id) || 0) + 1}</div>
+          className="text-center">{(table.getSortedRowModel()?.flatRows?.findIndex((flatRow: any) => flatRow.id === row.id) || 0) + 1}</div>
       },
     },
     {
       accessorKey: "action",
       size: 60,
       enableSorting: false,
-      header: ({column}) => {
+      header: ({column}: any) => {
         return (<ColumnHeader column={column} title={"#"} className={"justify-center"}/>)
       },
-      cell: ({row}) => {
+      cell: ({row}: any) => {
         return (
           <div
             className="text-center">
@@ -81,7 +81,7 @@ const TableUser = ({data, loading, onCreateClicked, onDeleteClicked, onEditClick
       header: "Full Name",
       enableSorting: true,
       size: 150,
-      cell: ({cell, row}) => (
+      cell: ({cell, row}: any) => (
         <div>
           <div className={"break-all"}>
             {cell.getValue()}
@@ -126,10 +126,6 @@ const TableUser = ({data, loading, onCreateClicked, onDeleteClicked, onEditClick
                    search: {
                      visible: false
                    }
-                   //   topLeft:
-                   //     <Button variant={"default"} onClick={onCreateClicked} disabled={loading}>
-                   //       {loading ? <span className={"animate-spin rounded-full h-3 w-3 border-b-2 border-current"}/> : <LuUserPlus/>} {t("shared.userAdd")}
-                   //     </Button>
                  }}
                  tableProps={{
                    containerStyles: "bg-card"
@@ -141,10 +137,10 @@ const TableUser = ({data, loading, onCreateClicked, onDeleteClicked, onEditClick
                  paginationProps={{
                    pageSize: data?.meta?.limit ?? 10,
                    pageIndex: data?.meta?.page ?? 1,
-                   onPageSizeChange: (rowSize, pageIndex) => {
-                   },
-                   onPageIndexChange: (rowSize, pageIndex) => {
-                   }
+                   // onPageSizeChange: (rowSize: number, pageIndex: number) => {
+                   // },
+                   // onPageIndexChange: (rowSize: number, pageIndex: number) => {
+                   // }
                  }}
       />
     </div>

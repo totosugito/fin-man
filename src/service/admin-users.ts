@@ -25,7 +25,7 @@ export const useAdminUserPut = () => {
   return useMutation({
     mutationKey: ['admin-user-put'],
     mutationFn: async ({id, body}: {id: string, body: any }) => {
-      return await fetchApi({method: "PUT", url: `${AppApi.admin.user.crud}/${id}`, body: body, withCredentials: true});
+      return await fetchApi({method: "PUT", url: (AppApi.admin.user.crud).replace(':id', id), body: body, withCredentials: true});
     },
   });
 }
@@ -42,8 +42,8 @@ export const useAdminUserDelete = () => {
 export const useAdminChangePassword = () => {
   return useMutation({
     mutationKey: ['admin-user-change-password'],
-    mutationFn: async ({body}: { body: any }) => {
-      return await fetchApi({method: "PUT", url: `${AppApi.admin.user.changePassword}`, body: body, withCredentials: true});
+    mutationFn: async ({id, body}: { id: string, body: Record<string, any> }) => {
+      return await fetchApi({method: "PATCH", url: (AppApi.admin.user.changePassword).replace(':id', id), body: body, withCredentials: true});
     },
   });
 }

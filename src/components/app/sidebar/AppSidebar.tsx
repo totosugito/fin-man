@@ -12,19 +12,19 @@ import {SidebarData} from "./types";
 import {cn} from "@/lib/utils";
 
 function AppSidebar({navItems, ...props }: { navItems: SidebarData }) {
-  const className = "text-background";
+  const className = "";
   return (
     <Sidebar collapsible='icon' variant='floating' {...props}>
-      <SidebarHeader className={"bg-primary rounded-t-lg"}>
+      <SidebarHeader className={"rounded-t-lg"}>
         <AppLogo className={className}/>
       </SidebarHeader>
 
-      <SidebarContent className={cn("scrollbar overflow-x-hidden bg-primary", className)}>
+      <SidebarContent className={cn("scrollbar overflow-x-hidden", className)}>
         {navItems.navGroups.map((props_: any, index: number) => (
           <NavGroup key={`${props_.title}-${index}`} {...props_} className={className}/>
         ))}
       </SidebarContent>
-      <SidebarFooter className={"bg-primary rounded-b-lg"}></SidebarFooter>
+      <SidebarFooter className={"rounded-b-lg"}></SidebarFooter>
     </Sidebar>
   );
 }

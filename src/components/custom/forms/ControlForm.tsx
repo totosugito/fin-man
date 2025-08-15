@@ -11,7 +11,7 @@ import FormTextArea from "./FormTextArea";
 import FormUpload from "./FormUpload";
 
 const ControlForm = forwardRef(({form, item, ...props}: { form: any, item: any, disabled?: boolean }, ref) => {
-  const className = "bg-background";
+  const className = "focus-visible:ring-[0px]";
   return (
     <div className={"flex flex-col gap-y-1"}>
       <Controller
