@@ -5,11 +5,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle
-} from "@/components/ui/dialog.js"
+} from "@/components/ui/dialog"
 import {cloneElement, useEffect, useState} from "react";
 import * as React from "react";
 import {useForm} from "react-hook-form";
-import {Button} from "@/components/ui/button.js";
+import {Button} from "@/components/ui/button";
 import {useTranslation} from "react-i18next";
 import {Form} from "@/components/ui/form";
 import {z} from "zod";

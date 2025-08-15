@@ -1,10 +1,10 @@
 import {createFileRoute, Outlet, redirect} from '@tanstack/react-router'
-import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar.js";
-import AppSidebar from "@/components/app/AppSidebar.jsx";
-import {AdminNav} from "@/constants/user-nav.js";
+import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
+import AppSidebar from "@/components/app/sidebar/AppSidebar";
+import {AdminNav} from "@/constants/user-nav";
 import * as React from "react";
-import {APP_CONFIG} from "@/constants/config.js";
-import {useAuth} from "@/hooks/use-auth.js";
+import {APP_CONFIG} from "@/constants/config";
+import {useAuth} from "@/hooks/use-auth";
 export const Route = createFileRoute('/__authenticated')({
   loader: ({context}) => {
     if (!context?.auth?.isAuthenticated) {

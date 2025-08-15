@@ -11,7 +11,7 @@ ALTER USER sicerdas WITH SUPERUSER;
 Create postgres user and create the database *fin_mot*
 Run the following commands to add ltree extension
 ```
-psql -U postgres -d fin_mot
+psql -U postgres -d fin_man
 CREATE EXTENSION IF NOT EXISTS ltree;
 ```
 

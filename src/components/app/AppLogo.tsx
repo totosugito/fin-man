@@ -1,9 +1,13 @@
 import React from "react";
-import {useSidebar} from "@/components/ui/sidebar.js";
-import {cn} from "@/lib/utils.js";
-import {APP_CONFIG} from "@/constants/config.js";
+import {useSidebar} from "@/components/ui/sidebar";
+import {cn} from "@/lib/utils";
+import {APP_CONFIG} from "@/constants/config";
 
-const AppLogo = ({className=""}) => {
+type Props = {
+  className?: string
+}
+
+const AppLogo = ({className=""}: Props) => {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
 

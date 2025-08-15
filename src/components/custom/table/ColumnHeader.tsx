@@ -1,7 +1,14 @@
 import {twMerge} from "tailwind-merge";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa6";
 
-const ColumnHeader = ({column, title, ...props}) => {
+type Props = {
+  column: any;
+  title: string|any;
+  className?: string;
+  titleStyles?: string;
+  sortingStyles?: string;
+}
+const ColumnHeader = ({column, title, ...props}: Props) => {
   return (
     <div className={twMerge("group flex flex-row cursor-pointer gap-1 items-center px-[5px] py-[3px] w-full hover:text-foreground", props?.className)}
          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>

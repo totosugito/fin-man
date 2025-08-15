@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Button} from "@/components/ui/button";
-import {formatBytes, useFileUpload} from "@/hooks/use-file-upload.js";
+import {formatBytes, useFileUpload} from "@/hooks/use-file-upload";
 import {
   AlertCircleIcon,
   DownloadIcon,
@@ -11,7 +11,7 @@ import {
   UploadCloudIcon,
   UploadIcon, VideoIcon
 } from "lucide-react";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.js";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {useEffect, useState} from "react";
 import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {FormUploadProps} from "@/types/form";

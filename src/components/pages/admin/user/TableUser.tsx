@@ -2,13 +2,28 @@ import {ColumnHeader, TableData} from "@/components/custom/table/index.ts";
 import {useMemo} from "react";
 import {useTranslation} from "react-i18next";
 import {IoMenu} from "react-icons/io5";
-import {Button} from "@/components/ui/button.tsx";
-import {DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu.tsx";
-import {Separator} from "@/components/ui/separator.tsx";
-import {Badge} from "@/components/ui/badge.tsx";
-import { CiTrash, CiEdit, CiLock } from "react-icons/ci";
+import {Button} from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import {Separator} from "@/components/ui/separator";
+import {Badge} from "@/components/ui/badge";
+import {CiTrash, CiEdit, CiLock} from "react-icons/ci";
 
-const TableUser = ({data, loading, onCreateClicked, onDeleteClicked, onEditClicked, onPasswordChange}) => {
+type Props = {
+  data: any[];
+  loading: boolean;
+  onCreateClicked: () => void;
+  onDeleteClicked: (item: any) => void;
+  onEditClicked: (item: any) => void;
+  onPasswordChange: (item: any) => void;
+}
+
+const TableUser = ({data, loading, onCreateClicked, onDeleteClicked, onEditClicked, onPasswordChange}: Props) => {
   const {t} = useTranslation();
   const headerClassNames = "";
 
@@ -68,9 +83,9 @@ const TableUser = ({data, loading, onCreateClicked, onDeleteClicked, onEditClick
       size: 150,
       cell: ({cell, row}) => (
         <div>
-        <div className={"break-all"}>
-          {cell.getValue()}
-        </div>
+          <div className={"break-all"}>
+            {cell.getValue()}
+          </div>
           <div className={"break-all text-foreground/70"}>
             {row.original?.email}
           </div>
@@ -89,11 +104,9 @@ const TableUser = ({data, loading, onCreateClicked, onDeleteClicked, onEditClick
         let className = "border-gray-700 bg-gray-300 text-neutral-700";
         if (role_ === "admin") {
           className = "border-red-700 bg-red-300 text-neutral-700";
-        }
-        else if (role_ === "user") {
+        } else if (role_ === "user") {
           className = "border-green-700 bg-green-300 text-neutral-700";
-        }
-        else {
+        } else {
           className = "border-gray-700 bg-gray-300 text-neutral-700";
         }
         return (
@@ -113,10 +126,10 @@ const TableUser = ({data, loading, onCreateClicked, onDeleteClicked, onEditClick
                    search: {
                      visible: false
                    }
-                 //   topLeft:
-                 //     <Button variant={"default"} onClick={onCreateClicked} disabled={loading}>
-                 //       {loading ? <span className={"animate-spin rounded-full h-3 w-3 border-b-2 border-current"}/> : <LuUserPlus/>} {t("shared.userAdd")}
-                 //     </Button>
+                   //   topLeft:
+                   //     <Button variant={"default"} onClick={onCreateClicked} disabled={loading}>
+                   //       {loading ? <span className={"animate-spin rounded-full h-3 w-3 border-b-2 border-current"}/> : <LuUserPlus/>} {t("shared.userAdd")}
+                   //     </Button>
                  }}
                  tableProps={{
                    containerStyles: "bg-card"

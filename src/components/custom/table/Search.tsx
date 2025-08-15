@@ -1,8 +1,14 @@
 import {IoMdClose} from "react-icons/io";
 import {twMerge} from "tailwind-merge";
-import {Input} from "@/components/ui/input.js";
+import {Input} from "@/components/ui/input";
 
-const Search = ({searchQuery, setSearchQuery, ...props}) => {
+type Props = {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  placeholder?: string;
+  className?: string;
+}
+const Search = ({searchQuery, setSearchQuery, ...props}: Props) => {
   return (
     <div className={twMerge("relative", props?.className)}>
       <Input

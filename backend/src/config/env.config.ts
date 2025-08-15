@@ -48,14 +48,13 @@ export default {
     port: env.PORT,
     frontendUrl: env.FRONTEND_URL,
     uploadsUrl: process.env.NODE_ENV === 'development' ?
-      `https://${env.HOST}:${env.PORT}` : `https://${env.FRONTEND_URL}`,
+      `${env.HOST}:${env.PORT}` : `${env.FRONTEND_URL}`,
     uploadsUserDir: 'uploads/users',
     trustedOrigins: [
       env.HOST,
       `http://${env.HOST}:${env.PORT}`,
-      `http://${env.FRONTEND_URL}`,
       `https://${env.HOST}:${env.PORT}`,
-      `https://${env.FRONTEND_URL}`
+      `${env.FRONTEND_URL}`
     ],
   },
   db: {

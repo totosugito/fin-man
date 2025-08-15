@@ -1,7 +1,8 @@
-import {Skeleton} from "@/components/ui/skeleton.tsx";
-import {cn} from "@/lib/utils.js";
+import {Skeleton} from "@/components/ui/skeleton";
+import {cn} from "@/lib/utils";
 
-const SkeParagraph = ({containerStyle="min-h-[300px]"}) => {
+type Props = {containerStyle?: string}
+const SkeParagraph = ({containerStyle="min-h-[300px]"}: Props) => {
 
   return(
     <div className={cn("flex flex-col h-full w-full items-start gap-2 p-5", containerStyle)}>

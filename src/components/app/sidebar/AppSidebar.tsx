@@ -6,9 +6,9 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from '@/components/ui/sidebar';
-import AppLogo from './AppLogo';
-import {NavGroup} from "@/components/custom/components/NavGroup";
-import {SidebarData} from "@/types/sidebar";
+import AppLogo from '../AppLogo';
+import {NavGroup} from "./NavGroup";
+import {SidebarData} from "./types";
 import {cn} from "@/lib/utils";
 
 function AppSidebar({navItems, ...props }: { navItems: SidebarData }) {

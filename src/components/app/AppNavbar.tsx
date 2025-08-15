@@ -9,15 +9,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu.js";
+} from "@/components/ui/dropdown-menu";
 import {MdLogout} from "react-icons/md";
 import {useTranslation} from "react-i18next";
-import {Button} from "@/components/ui/button.js";
+import {Button} from "@/components/ui/button";
 import {FaRegUser} from "react-icons/fa";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar.js";
-import {useAuthStore} from "@/stores/useAuthStore.js";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import {useAuthStore} from "@/stores/useAuthStore";
 import DialogModal from "@/components/custom/components/DialogModal";
-import {useLogoutMutation} from "@/service/auth.js";
+import {useLogoutMutation} from "@/service/auth";
 import {ModalProps} from "@/types/dialog";
 
 type Props = {

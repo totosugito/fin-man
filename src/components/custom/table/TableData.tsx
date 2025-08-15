@@ -4,22 +4,22 @@ import {
   getCoreRowModel, getExpandedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
+  getSortedRowModel, SortingState,
   useReactTable
 } from "@tanstack/react-table";
 import {useEffect, useState} from "react";
-import TablePagination from "./PaginationData.jsx"
-import TableSearch from "./Search.jsx"
-import TableRowsPerPage, {SHOW_ALL_KEY} from "./RowsPerPage.jsx"
+import TablePagination from "./PaginationData"
+import TableSearch from "./Search"
+import TableRowsPerPage, {SHOW_ALL_KEY} from "./RowsPerPage"
 import {useTranslation} from "react-i18next";
-import {MdCheck, MdCheckBox, MdCheckBoxOutlineBlank, MdSearch, MdSearchOff} from "react-icons/md";
-import ColumnHeader from "./ColumnHeader.jsx";
-import {Button} from "@/components/ui/button.js";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.js";
-import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.js";
-import {cn} from "@/lib/utils.js";
+import {MdCheck, MdCheckBoxOutlineBlank, MdSearch, MdSearchOff} from "react-icons/md";
+import ColumnHeader from "./ColumnHeader";
+import {Button} from "@/components/ui/button";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {cn} from "@/lib/utils";
 import {CiTrash} from "react-icons/ci";
-import {showNotifError} from "@/lib/show-notif.js";
+import {showNotifError} from "@/lib/show-notif";
 
 const ACTION_LIST = {
   selectAll: "Select All",
@@ -27,6 +27,20 @@ const ACTION_LIST = {
   deleteSelected: "Delete Selected",
 }
 
+type Props = {
+  columns: any[];
+  data: any[];
+  tableProps?: any;
+  headerProps?: any;
+  bodyProps?: any;
+  toolBarProps?: any;
+  paginationProps?: any;
+  pinColumns?: any;
+  onPageIndexChange?: (index: number) => void
+  onPageSizeChange?: (index: number) => void
+  onActionChanged?: (action: string, data: any[]) => void
+  renderDetailPanel?: (row: any) => React.ReactNode
+}
 const TableData = ({
                      columns, data,
                      tableProps,
@@ -36,7 +50,7 @@ const TableData = ({
                      paginationProps,
                      pinColumns,
                      ...props
-                   }) => {
+                   }: Props) => {
   const defaultTableProps = {
     containerStyles: "",
     containerTableStyles: "",
@@ -81,12 +95,12 @@ const TableData = ({
     paginationShowAll: true,
     usePagination: false,
     totalRows: 0,
-    onPageSizeChange: (pageSize) => {
+    onPageSizeChange: (pageSize: number) => {
       if (props.onPageSizeChange) {
         props.onPageSizeChange(pageSize);
       }
     },
-    onPageIndexChange: (pageIndex) => {
+    onPageIndexChange: (pageIndex: number) => {
       if (props.onPageIndexChange) {
         props.onPageIndexChange(pageIndex);
       }
@@ -99,7 +113,7 @@ const TableData = ({
   const paginationProps_ = {...defaultPaginationProps, ...paginationProps};
 
   const {t} = useTranslation();
-  const [sorting, setSorting] = useState([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [tableRowsPerPage, setTableRowsPerPage] = useState(paginationProps_?.pageSize ?? 5); // Default rows per page
   const [pageIndex, setPageIndex] = useState(paginationProps_?.pageIndex ?? 0); // Track current page
   const [searchQuery, setSearchQuery] = useState(''); // Track search query
@@ -136,7 +150,7 @@ const TableData = ({
     onExpandedChange: setExpanded,
     onColumnPinningChange: () => {
     }, // Optional, if you want to make it dynamic
-    getPinnedColumns: true,
+    // getPinnedColumns: true,
     state: {
       expanded,
       sorting,
@@ -155,7 +169,7 @@ const TableData = ({
         }
     },
     onGlobalFilterChange: setSearchQuery, // Change setGlobalFilter to setSearchQuery
-    onPaginationChange: (updater) => {
+    onPaginationChange: (_) => {
       // This code automatically compute the page index relative by computation the current index and the total page size (rowsPerPage)
       // const newPagination = typeof updater === "function" ? updater({
       //   pageIndex,
@@ -173,14 +187,14 @@ const TableData = ({
     }
   })
 
-  const onActionChanged = (v) => {
+  const onActionChanged = (v: string) => {
     // e.preventDefault();
     if (v === ACTION_LIST.selectAll) {
       table.toggleAllPageRowsSelected(true);
-      props?.onActionChanged(ACTION_LIST.selectAll, []);
+      {props?.onActionChanged && props?.onActionChanged(ACTION_LIST.selectAll, []);}
     } else if (v === ACTION_LIST.selectNone) {
       table.toggleAllPageRowsSelected(false);
-      props?.onActionChanged(ACTION_LIST.selectNone, []);
+      {props?.onActionChanged && props?.onActionChanged(ACTION_LIST.selectNone, []);}
     } else if (v === ACTION_LIST.deleteSelected) {
       const selected_ = table.getSelectedRowModel().rows.map((row) => row.original);
 
@@ -188,7 +202,7 @@ const TableData = ({
         showNotifError({message: "Please select at least one row"});
         return;
       }
-      props?.onActionChanged(ACTION_LIST.deleteSelected, selected_);
+      {props?.onActionChanged && props?.onActionChanged(ACTION_LIST.deleteSelected, selected_);}
     }
     setSelectedAction("");
   }
@@ -262,7 +276,7 @@ const TableData = ({
                             headerProps_.rowStyles
                           )}>
 
-                  {headerGroup.headers.map((header, index) => {
+                  {headerGroup.headers.map((header, _) => {
 
                     const isPinnedLeft = header.column.getIsPinned() === 'left';
                     const isPinnedRight = header.column.getIsPinned() === 'right';
@@ -292,7 +306,7 @@ const TableData = ({
                               {
                                 flexRender(
                                   typeof header.column.columnDef.header === "string" ? (props) =>
-                                      (<ColumnHeader column={header.column} title={header.column.columnDef.header} {...props}/>) :
+                                      (<ColumnHeader title={header.column.columnDef.header} {...props}/>) :
                                     header.column.columnDef.header,
                                   header.getContext()
                                 )
@@ -344,7 +358,7 @@ const TableData = ({
                     <TableRow data-state={row.getIsSelected() && "selected"}>
                       <TableCell colSpan={columns.length}
                                  className={cn("border-l-[1px] border-r-[1px] border-b-[1px] align-top", bodyProps_.cellStyles)}>
-                        {props?.renderDetailPanel(row)}
+                        {props?.renderDetailPanel && props?.renderDetailPanel(row)}
                       </TableCell>
                     </TableRow>
                   )}

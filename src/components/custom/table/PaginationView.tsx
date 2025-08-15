@@ -1,5 +1,5 @@
-import TableRowsPerPage from "@/components/custom/table/RowsPerPage";
-import PaginationData from "@/components/custom/table/PaginationData";
+import TableRowsPerPage from "./RowsPerPage";
+import PaginationData from "./PaginationData";
 import React, {useState} from "react";
 
 type Props = {

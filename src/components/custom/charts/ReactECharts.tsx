@@ -3,17 +3,17 @@ import {useEffect, useImperativeHandle, useMemo, useRef, forwardRef} from 'react
 import {getInstanceByDom, init, use} from "echarts/core";
 
 type EChartsEventHandlers = {
-  [key: string]: (params?: any) => void;
-  zrClick?: (params?: any) => void;  // Made params optional with ?
+  [key: string]: ((params?: any) => void) | undefined;
+  zrClick?: (params?: any) => void;
 };
 
 import {cn} from "@/lib/utils";
-import {getShadcnRgbaColor} from "@/lib/my-utils.js";
+import {getShadcnRgbaColor} from "@/lib/my-utils";
 
 import {CanvasRenderer} from "echarts/renderers";
 import {BarChart, LineChart, ScatterChart, FunnelChart} from "echarts/charts";
 import {GridComponent, LegendComponent, TitleComponent, ToolboxComponent, TooltipComponent, GraphicComponent} from "echarts/components";
-import {useTheme} from "@/lib/theme-provider.js";
+import {useTheme} from "@/lib/theme-provider";
 
 use([
   LegendComponent,
@@ -137,11 +137,11 @@ const ReactECharts = forwardRef(({
   }));
 
   function useDebounce<T extends (...args: any[]) => any>(fn: T, delay: number) {
-    const timeoutRef = useRef<ReturnType<typeof setTimeout>>(0)
+    const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
 
     const debouncedFn = useMemo(() => {
       return (...args: Parameters<T>) => {
-        clearTimeout(timeoutRef.current)
+        clearTimeout(timeoutRef.current || undefined)
         timeoutRef.current = setTimeout(() => {
           fn(...args)  // Make sure to pass the arguments to the original function
         }, delay)
@@ -352,7 +352,7 @@ interface ChartTooltipSeriesProps {
 }
 
 const ChartTooltipSeries = ({params, showIndicators = true, className = ""}: ChartTooltipSeriesProps) => {
-  const {data, seriesName, marker, dimensionNames, name} = params;
+  const {data, seriesName, marker, dimensionNames:_, name} = params;
   const tooltipClass = cn("flex flex-col gap-0 p-2 rounded-md border shadow-sm text-xs bg-popover/90", className);
 
   return `

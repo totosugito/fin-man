@@ -1,9 +1,16 @@
 import {useTranslation} from "react-i18next";
 import {twMerge} from "tailwind-merge";
-import {Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue} from "@/components/ui/select.js";
+import {Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 export const SHOW_ALL_KEY = "all";
-const RowsPerPage = ({rowsPerPage, paginationList = [5, 10, 20, 50], paginationShowAll=true, ...props}) => {
+type Props = {
+  rowsPerPage: number
+  paginationList?: number[]
+  paginationShowAll?: boolean
+  onPageSizeChange: (index: number|string) => void
+  styleContainer?: string
+}
+const RowsPerPage = ({rowsPerPage, paginationList = [5, 10, 20, 50], paginationShowAll=true, ...props}: Props) => {
   const {t} = useTranslation();
 
   return (

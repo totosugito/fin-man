@@ -1,8 +1,24 @@
 import {twMerge} from "tailwind-merge";
 import {useTranslation} from "react-i18next";
-import {Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink} from "@/components/ui/pagination";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink
+} from "@/components/ui/pagination";
 
-const PaginationData = ({pageIndex, setPageIndex, rowsPerPage, rowsCount, ...props}) => {
+type Props = {
+  pageIndex: number;
+  setPageIndex: (index: number) => void;
+  rowsPerPage: number;
+  rowsCount: number;
+  paginationList?: number[],
+  styleContainer?: string;
+  styleLabel?: string;
+  onPageIndexChange: (index: number) => void
+}
+const PaginationData = ({pageIndex, setPageIndex, rowsPerPage, rowsCount, paginationList, ...props}: Props) => {
   const {t} = useTranslation();
   const pageCount = Math.ceil(rowsCount / rowsPerPage);
 
@@ -65,7 +81,9 @@ const PaginationData = ({pageIndex, setPageIndex, rowsPerPage, rowsCount, ...pro
   return (
     <div className={twMerge("flex items-center gap-2", props?.styleContainer)}>
       <div className={twMerge("text-nowrap text-muted-foreground", props?.styleLabel)}>
-        <span className="text-foreground">{rowsCount > 0 ? startIndex : 0}</span> - <span className="text-foreground">{endIndex}</span> {t("shared.of")}  <span className="text-foreground">{rowsCount}</span>
+        <span className="text-foreground">{rowsCount > 0 ? startIndex : 0}</span> - <span
+        className="text-foreground">{endIndex}</span> {t("shared.of")} <span
+        className="text-foreground">{rowsCount}</span>
       </div>
       <Pagination>
         <PaginationContent>
