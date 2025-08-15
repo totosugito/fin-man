@@ -1,0 +1,75 @@
+.rc-input-number {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+}
+.rc-input-number-focused {
+}
+.rc-input-number-out-of-range input {
+  color: var(--destructive);
+}
+.rc-input-number-handler {
+  display: block;
+  height: 50%;
+  overflow: hidden;
+  line-height: 130%;
+  text-align: center;
+  touch-action: none;
+}
+.rc-input-number-handler-active {
+}
+.rc-input-number-handler-up-inner,
+.rc-input-number-handler-down-inner {
+}
+.rc-input-number:hover {
+}
+.rc-input-number:hover .rc-input-number-handler-up,
+.rc-input-number:hover .rc-input-number-handler-wrap {
+}
+.rc-input-number-disabled:hover {
+}
+.rc-input-number-disabled:hover .rc-input-number-handler-up,
+.rc-input-number-disabled:hover .rc-input-number-handler-wrap {
+}
+.rc-input-number-input-wrap {
+  height: 100%;
+  overflow: hidden;
+}
+.rc-input-number-input {
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  outline: 0;
+}
+.rc-input-number-handler-wrap {
+  float: right;
+  width: 20px;
+  height: 100%;
+  border-left: 1px solid var(--border);
+}
+.rc-input-number-handler-up {
+  border-bottom: 1px solid var(--border);
+}
+.rc-input-number-handler-up-inner:after {
+  content: '+';
+  color: var(--foreground);
+}
+.rc-input-number-handler-down {
+}
+.rc-input-number-handler-down-inner:after {
+  content: '-';
+  color: var(--foreground);
+}
+.rc-input-number-handler-down-disabled,
+.rc-input-number-handler-up-disabled {
+}
+.rc-input-number-handler-down-disabled:hover,
+.rc-input-number-handler-up-disabled:hover {
+}
+.rc-input-number-disabled .rc-input-number-input {
+}
+.rc-input-number-disabled .rc-input-number-handler {
+}
+.rc-input-number-disabled .rc-input-number-handler:hover {
+}
