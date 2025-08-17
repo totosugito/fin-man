@@ -2,11 +2,11 @@ import {useMutation, useQuery, UseQueryOptions} from "@tanstack/react-query";
 import {fetchApi} from "@/lib/fetch-api";
 import {AppApi} from "@/constants/api";
 
-export const useAdminUserList = (options?: Partial<UseQueryOptions<any, Error>>) => {
+export const useAdminUserList = (params: { sort?: string; order?: 'asc' | 'desc' }) => {
   return useQuery({
-    queryKey: ['admin-user-list'],
+    queryKey: ['admin-user-list', params.sort, params.order],
     queryFn: async () => {
-      const response = await fetchApi({method: "GET", url: `${AppApi.admin.user.list}`, withCredentials: true});
+      const response = await fetchApi({method: "GET", url: `${AppApi.admin.user.list}`, withCredentials: true, params: params});
       return(response);
     },
   });

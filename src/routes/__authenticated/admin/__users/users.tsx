@@ -1,4 +1,4 @@
-import {createFileRoute} from '@tanstack/react-router'
+import {createFileRoute, useSearch} from '@tanstack/react-router'
 import {showNotifError, showNotifSuccess} from "@/lib/show-notif";
 import {
   Breadcrumb,
@@ -11,7 +11,7 @@ import {PageTitle, AppNavbar} from "@/components/app";
 import {SkeTable} from "@/components/custom/skeleton";
 import {DialogModal, DialogModalForm} from "@/components/custom/components";
 import * as React from "react";
-import {FormUserAdd, TableUser, FormUserEdit, FormPasswordUpdate} from '@/components/pages/admin/user';
+import {FormUserAdd, TableUser, FormUserEdit, FormPasswordUpdate, DataTableUser} from '@/components/pages/admin/user';
 import {useQueryClient} from '@tanstack/react-query';
 import {
   useAdminChangePassword,
@@ -30,14 +30,21 @@ import {ObjToOptionList} from "@/lib/my-utils";
 import {EnumUserRole} from "backend/src/db/schema";
 
 export const Route = createFileRoute('/__authenticated/admin/__users/users')({
+  validateSearch: (search: Record<string, unknown>): { sort?: string; order?: 'asc' | 'desc' } => {
+    return {
+      sort: search.sort as string | undefined,
+      order: search.order as 'asc' | 'desc' | undefined,
+    }
+  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const {t} = useTranslation()
   const queryClient = useQueryClient();
+  const { sort, order } = Route.useSearch();
 
-  const userListQuery = useAdminUserList();
+  const userListQuery = useAdminUserList({ sort, order });
   const userCreateMutation = useAdminUserCreate();
   const userPutMutation = useAdminUserPut();
   const userDeleteMutation = useAdminUserDelete();
@@ -133,7 +140,7 @@ function RouteComponent() {
           {body: {userId: item?.id}},
           {
             onSuccess: async () => {
-              await queryClient.invalidateQueries({queryKey: ['admin-user-list']});
+              await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order]});
               showNotifSuccess({message: "User deleted successfully"});
             },
             onError: (error: any) => showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message}),
@@ -157,7 +164,7 @@ function RouteComponent() {
       onConfirmClick: (body: Record<string, any>) => {
         userCreateMutation.mutate({body}, {
           onSuccess: async () => {
-            await queryClient.invalidateQueries({queryKey: ['admin-user-list']});
+            await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order]});
             showNotifSuccess({message: "User created successfully"});
             setConfirmationCreate(null);
           },
@@ -185,7 +192,7 @@ function RouteComponent() {
       onConfirmClick: (body: Record<string, any>) => {
         userPutMutation.mutate({id: item?.id, body: body}, {
           onSuccess: async () => {
-            await queryClient.invalidateQueries({queryKey: ['admin-user-list']});
+            await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order]});
             showNotifSuccess({message: "User updated successfully"});
             setConfirmationPut(null);
           },
@@ -260,6 +267,14 @@ function RouteComponent() {
               </Button>
             </div>
             <TableUser data={userListQuery?.data}
+                       onCreateClicked={onDataCreated}
+                       onEditClicked={onDataPut}
+                       onDeleteClicked={(item: any) => onDeleteData(item)}
+                       onPasswordChange={(item: any) => onPasswordChange(item)}
+                       loading={isLoading()}
+            />
+
+            <DataTableUser data={userListQuery?.data}
                        onCreateClicked={onDataCreated}
                        onEditClicked={onDataPut}
                        onDeleteClicked={(item: any) => onDeleteData(item)}

@@ -40,9 +40,9 @@ html {
   --sidebar-accent-foreground: oklch(0.3015 0.0572 282.4176);
   --sidebar-border: oklch(0.9115 0.0216 285.9625);
   --sidebar-ring: oklch(0.5417 0.1790 288.0332);
-  --font-sans: Inter, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: JetBrains Mono, monospace;
+  --font-sans: Poppins, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: Roboto Mono, monospace;
   --radius: 0.5rem;
   --shadow-2xs: 0px 4px 10px 0px hsl(240 30% 25% / 0.06);
   --shadow-xs: 0px 4px 10px 0px hsl(240 30% 25% / 0.06);
