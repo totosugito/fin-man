@@ -18,7 +18,7 @@ const bodySchema = Type.Object({
 
 const updateProjectEvent: FastifyPluginAsyncTypebox = async (app) => {
   app.route({
-    url: '/update',
+    url: '/:id',
     method: 'PUT',
     schema: {
       tags: ['Project Event'],

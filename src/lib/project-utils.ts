@@ -7,6 +7,7 @@ export type ProjectMember = {
   sortOrder: number;
   path: string;
   depth: number;
+  cost: Record<string, any>;
   children?: ProjectMember[];
   subRows?: ProjectMember[];
 };

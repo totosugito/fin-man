@@ -22,6 +22,11 @@ export const AppApi = {
     list: APP_URL_V1 + "/project/list",
     create: APP_URL_V1 + "/project/create",
     crud: APP_URL_V1 + "/project",
+  },
+  projectEvent: {
+    list: APP_URL_V1 + "/project-event/list",
+    create: APP_URL_V1 + "/project-event/create",
+    crud: APP_URL_V1 + "/project-event",
   }
 }
 

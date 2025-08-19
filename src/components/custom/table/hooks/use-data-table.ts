@@ -1,6 +1,6 @@
 import {
-  ColumnFiltersState,
-  getCoreRowModel, getFacetedMinMaxValues,
+  ColumnFiltersState, ExpandedState,
+  getCoreRowModel, getExpandedRowModel, getFacetedMinMaxValues,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
@@ -15,6 +15,7 @@ import {
   VisibilityState
 } from "@tanstack/react-table";
 import * as React from "react";
+import {useState} from "react";
 
 interface UseDataTableProps<TData>
   extends Omit<
@@ -22,9 +23,11 @@ interface UseDataTableProps<TData>
     |
     "state" |
     "pageCount" |
-    "getCoreRowModel"
+    "getCoreRowModel" |
+    "getSubRows"
   >,
     Required<Pick<TableOptions<TData>, "pageCount">> {
+  getSubRows?: (row: TData) => TData[] | undefined;
   initialState?: Omit<Partial<TableState>, "sorting" | "columnFilters"> & {
   };
 }
@@ -37,9 +40,12 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     manualSorting = false,
     manualFiltering = false,
     manualPagination = false,
+    manualExpanding = false,
     onSortingChange,
     onPaginationChange,
     onColumnFiltersChange,
+    onExpandedChange,
+    getSubRows,
     ...tableProps
   } = props;
 
@@ -55,10 +61,12 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     pageSize: 10,
   });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [expanded, setExpanded] = useState<ExpandedState>(initialState?.expanded ?? {});
 
   const handleSortingChange = manualSorting ? onSortingChange : setSorting;
   const handlePaginationChange = manualPagination ? onPaginationChange : setPagination;
   const handleColumnFiltersChange = manualFiltering ? onColumnFiltersChange : setColumnFilters;
+  const handleExpandedChange = manualExpanding ? onExpandedChange : setExpanded;
 
   const table = useReactTable({
     ...tableProps,
@@ -71,7 +79,12 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       columnVisibility,
       rowSelection,
       columnFilters,
+      expanded
     },
+    getSubRows: getSubRows || ((row: any) => row?.subRows),
+    getExpandedRowModel: getExpandedRowModel(),
+    onExpandedChange: handleExpandedChange,
+
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: handlePaginationChange,
@@ -88,6 +101,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     manualPagination: manualPagination,
     manualSorting: manualSorting,
     manualFiltering: manualFiltering,
+    manualExpanding: manualExpanding,
     meta: {
       ...(tableProps.meta ?? {}),
     }
