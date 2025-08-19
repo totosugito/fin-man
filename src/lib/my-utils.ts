@@ -209,6 +209,7 @@ interface DateDifferenceResult {
   days: number;
   labels: string;
   style: string;
+  value: string
 }
 
 export function getDaysFromCurrentDate(t: (key: string) => string, date: Date | string | number): DateDifferenceResult {
@@ -220,6 +221,7 @@ export function getDaysFromCurrentDate(t: (key: string) => string, date: Date | 
       days: 0,
       labels: "",
       style: "",
+      value: ""
     })
   }
 
@@ -260,6 +262,7 @@ export function getDaysFromCurrentDate(t: (key: string) => string, date: Date | 
     days: days,
     labels: labels,
     style: style,
+    value: date_to_string(inputDate, "yyyy-MM-dd HH:mm"),
   })
 }
 

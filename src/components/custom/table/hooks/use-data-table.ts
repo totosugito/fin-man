@@ -1,24 +1,20 @@
-"use client";
-
 import {
-  type ColumnFiltersState,
-  getCoreRowModel,
-  getFacetedMinMaxValues,
+  ColumnFiltersState,
+  getCoreRowModel, getFacetedMinMaxValues,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  type PaginationState,
-  type RowSelectionState,
-  type SortingState,
-  type TableOptions,
-  type TableState,
+  PaginationState,
+  RowSelectionState,
+  SortingState,
+  TableOptions,
+  TableState,
   useReactTable,
-  type VisibilityState,
+  VisibilityState
 } from "@tanstack/react-table";
 import * as React from "react";
-import type { ExtendedColumnSort, ExtendedColumnFilter, JoinOperator } from "../types/data-table";
 
 interface UseDataTableProps<TData>
   extends Omit<
@@ -30,8 +26,6 @@ interface UseDataTableProps<TData>
   >,
     Required<Pick<TableOptions<TData>, "pageCount">> {
   initialState?: Omit<Partial<TableState>, "sorting" | "columnFilters"> & {
-    sorting?: ExtendedColumnSort<TData>[];
-    columnFilters?: ExtendedColumnFilter<TData>[];
   };
 }
 
@@ -55,14 +49,12 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
 
-  const [sorting, setSorting] = React.useState<SortingState>(initialState?.sorting ?? []);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState<PaginationState>({
-      pageIndex: 0,
-      pageSize: 10,
+    pageIndex: 0,
+    pageSize: 10,
   });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [advancedFilters, setAdvancedFilters] = React.useState<ExtendedColumnFilter<TData>[]>(initialState?.columnFilters ?? []);
-  const [joinOperator, setJoinOperator] = React.useState<JoinOperator>("and");
 
   const handleSortingChange = manualSorting ? onSortingChange : setSorting;
   const handlePaginationChange = manualPagination ? onPaginationChange : setPagination;
@@ -97,11 +89,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     manualSorting: manualSorting,
     manualFiltering: manualFiltering,
     meta: {
-        ...(tableProps.meta ?? {}),
-        advancedFilters,
-        setAdvancedFilters,
-        joinOperator,
-        setJoinOperator,
+      ...(tableProps.meta ?? {}),
     }
   });
 

@@ -7,3 +7,4 @@ export const getUserAvatarUrl = (avatar: string | null | undefined) => {
 
   return `${env.server.uploadsUrl}/${env.server.uploadsUserDir}${avatar}`;
 };
+

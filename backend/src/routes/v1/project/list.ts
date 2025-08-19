@@ -38,6 +38,7 @@ const projectRoutes: FastifyPluginAsyncTypebox = async (app) => {
             name: Type.String(),
             description: Type.Union([Type.String(), Type.Null()]),
             status: Type.String({ enum: Object.values(EnumProjectStatus) }),
+            type: Type.String({ enum: Object.values(EnumProjectType) }),
             cost: Type.Union([Type.Record(Type.String(), Type.Any()), Type.Null()]),
             extra: Type.Record(Type.String(), Type.Any()),
             createdAt: Type.String({ format: 'date-time' }),

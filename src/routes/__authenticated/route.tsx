@@ -5,6 +5,7 @@ import {AdminNav} from "@/constants/user-nav";
 import * as React from "react";
 import {APP_CONFIG} from "@/constants/config";
 import {useAuth} from "@/hooks/use-auth";
+import {AppNavbar} from "@/components/app";
 export const Route = createFileRoute('/__authenticated')({
   loader: ({context}) => {
     if (!context?.auth?.isAuthenticated) {
@@ -25,7 +26,8 @@ function RouteComponent() {
       <SidebarProvider defaultOpen={true}>
         <AppSidebar navItems={webNav}/>
 
-        <SidebarInset  className={"flex flex-1 overflow-x-hidden"}>
+        <SidebarInset  className={"flex flex-1 overflow-x-hidden h-screen flex-col"}>
+          <AppNavbar/>
           <Outlet/>
         </SidebarInset>
       </SidebarProvider>

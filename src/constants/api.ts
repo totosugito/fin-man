@@ -18,6 +18,11 @@ export const AppApi = {
       ban: APP_URL_API + "/admin/user/:id/ban",
     }
   },
+  project: {
+    list: APP_URL_V1 + "/project/list",
+    create: APP_URL_V1 + "/project/create",
+    crud: APP_URL_V1 + "/project",
+  }
 }
 
 export const AppRoute = {
@@ -25,7 +30,8 @@ export const AppRoute = {
     dashboard: "/",
   },
   project: {
-    list: "/project",
+    list: "/project/list",
+    detail: "/project/$id",
   },
   admin: {
     user: {

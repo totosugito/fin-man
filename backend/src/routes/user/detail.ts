@@ -8,7 +8,7 @@ import {getUserAvatarUrl} from "../../utils/app-utils.ts";
 
 const protectedRoute: FastifyPluginAsyncTypebox = async (app) => {
   app.route({
-    url: '/details',
+    url: '/detail',
     method: 'GET',
     schema: {
       tags: ['User'],

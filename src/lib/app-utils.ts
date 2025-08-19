@@ -1,63 +1,18 @@
-import { MdOutlineCancel, MdCheckCircleOutline, MdWarningAmber } from "react-icons/md";
+import {EnumProjectStatus} from "backend/src/db/schema";
 
-export const getStatusDateFromObject = (obj: Record<string, any>[] = [], key = "expiredDate") => {
-  if (!Array.isArray(obj) || obj.length === 0) {
-    return {
-      status: "missing",
-      styles: 'text-orange-600 bg-orange-50',
-      icon: MdWarningAmber,
-      value: "N/A"
-    };
+export const getProjectStatusStyle = (status: string) => {
+  switch (status) {
+    case EnumProjectStatus.draft:
+      return 'bg-blue-100 text-blue-800 border-blue-800';
+    case EnumProjectStatus.ongoing:
+      return 'bg-yellow-100 text-yellow-800 border-yellow-800';
+    case EnumProjectStatus.completed:
+      return 'bg-green-100 text-green-800 border-green-800';
+    case EnumProjectStatus.archived:
+      return 'bg-gray-100 text-gray-800 border-gray-800';
+    case EnumProjectStatus.deleted:
+      return 'bg-red-100 text-red-800 border-red-800';
+    default:
+  return 'bg-gray-100 text-gray-800 border-gray-800';
   }
-
-  try {
-    const currentDate = new Date();
-    const validItems = obj
-      .filter(item => item?.[key])
-      .sort((a, b) => new Date(b[key]).getTime() - new Date(a[key]).getTime());
-
-    if (validItems.length === 0) {
-      return {
-        status: "missing",
-        styles: 'text-orange-600 bg-orange-50',
-        icon: MdWarningAmber,
-        value: "N/A"
-      };
-    }
-
-    const expiredDate = new Date(validItems[0][key]);
-
-    if (isNaN(expiredDate.getTime())) {
-      return {
-        status: "invalid_date",
-        styles: 'text-gray-600 bg-gray-50',
-        icon: MdWarningAmber,
-        value: "Invalid Date"
-      };
-    }
-
-    if (expiredDate < currentDate) {
-      return {
-        status: "expired",
-        styles: 'text-red-600 bg-red-50',
-        icon: MdOutlineCancel,
-        value: validItems[0][key]
-      };
-    }
-
-    return {
-      status: "active",
-      styles: 'text-green-600 bg-green-50',
-      icon: MdCheckCircleOutline,
-      value: validItems[0][key]
-    };
-  } catch (error) {
-    console.error("Error in getStatusDateFromObject:", error);
-    return {
-      status: "error",
-      styles: 'text-gray-600 bg-gray-50',
-      icon: MdWarningAmber,
-      value: "Error"
-    };
-  }
-};
+}

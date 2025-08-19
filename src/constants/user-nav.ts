@@ -18,7 +18,7 @@ export const AdminNav = {
   teams: {},
   navGroups: [
     {
-      title: "MONITOR",
+      title: "DATA MANAGEMENT",
       items: [
         {
           title: "Project",

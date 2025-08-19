@@ -1,17 +1,10 @@
-import {createFileRoute, useSearch} from '@tanstack/react-router'
+import {createFileRoute} from '@tanstack/react-router'
 import {showNotifError, showNotifSuccess} from "@/lib/show-notif";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from "@/components/ui/breadcrumb";
-import {PageTitle, AppNavbar} from "@/components/app";
+import {PageTitle} from "@/components/app";
 import {SkeTable} from "@/components/custom/skeleton";
 import {DialogModal, DialogModalForm} from "@/components/custom/components";
 import * as React from "react";
-import {FormUserAdd, TableUser, FormUserEdit, FormPasswordUpdate, DataTableUser} from '@/components/pages/admin/user';
+import {FormUserAdd, FormUserEdit, FormPasswordUpdate, DataTableUser} from '@/components/pages/admin/user/list';
 import {useQueryClient} from '@tanstack/react-query';
 import {
   useAdminChangePassword,
@@ -42,12 +35,12 @@ export const Route = createFileRoute('/__authenticated/admin/__users/users')({
 function RouteComponent() {
   const {t} = useTranslation()
   const queryClient = useQueryClient();
-  const { sort, order } = Route.useSearch();
+  const {sort, order} = Route.useSearch();
 
-  const userListQuery = useAdminUserList({ sort, order });
-  const userCreateMutation = useAdminUserCreate();
-  const userPutMutation = useAdminUserPut();
-  const userDeleteMutation = useAdminUserDelete();
+  const dataListQuery = useAdminUserList({sort, order});
+  const dataCreateMutation = useAdminUserCreate();
+  const dataPutMutation = useAdminUserPut();
+  const dataDeleteMutation = useAdminUserDelete();
   const userUpdatePasswordMutation = useAdminChangePassword();
 
   const [confirmationCreate, setConfirmationCreate] = useState<ModalFormProps | null>(null);
@@ -56,7 +49,7 @@ function RouteComponent() {
   const [confirmationUpdatePassword, setConfirmationUpdatePassword] = useState<ModalFormProps | null>(null);
 
   const isLoading = () => {
-    return (userDeleteMutation.isPending || userCreateMutation.isPending || userPutMutation.isPending || userListQuery.isPending
+    return (dataDeleteMutation.isPending || dataCreateMutation.isPending || dataPutMutation.isPending || dataListQuery.isPending
     );
   }
 
@@ -136,7 +129,7 @@ function RouteComponent() {
       textConfirm: "Delete",
       textCancel: "Cancel",
       onConfirmClick: () => {
-        userDeleteMutation.mutate(
+        dataDeleteMutation.mutate(
           {body: {userId: item?.id}},
           {
             onSuccess: async () => {
@@ -162,7 +155,7 @@ function RouteComponent() {
       content: <FormUserAdd/>,
       onCancelClick: () => setConfirmationCreate(null),
       onConfirmClick: (body: Record<string, any>) => {
-        userCreateMutation.mutate({body}, {
+        dataCreateMutation.mutate({body}, {
           onSuccess: async () => {
             await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order]});
             showNotifSuccess({message: "User created successfully"});
@@ -190,7 +183,7 @@ function RouteComponent() {
       textConfirm: "Update",
       onCancelClick: () => setConfirmationPut(null),
       onConfirmClick: (body: Record<string, any>) => {
-        userPutMutation.mutate({id: item?.id, body: body}, {
+        dataPutMutation.mutate({id: item?.id, body: body}, {
           onSuccess: async () => {
             await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order]});
             showNotifSuccess({message: "User updated successfully"});
@@ -237,54 +230,41 @@ function RouteComponent() {
     });
   }
 
-  return (
-    <div className={"divPage"}>
-      <AppNavbar title={
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbPage>User List</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      }/>
-      <div className={"divContent"}>
-        <PageTitle title={<div>User List</div>} showSeparator={false}/>
-
-        {(userListQuery.isPending) && <div className={"h-full w-full flex"}>
-          <SkeTable/>
-        </div>}
-
-        {userListQuery.isError &&
-          <div className={"text-lg text-destructive"}>Error: {userListQuery?.error?.message}</div>}
-
-        {userListQuery.isSuccess &&
-          <div className={"flex flex-col gap-2"}>
-            <div>
-              <Button variant={"default"} onClick={onDataCreated} disabled={isLoading()}>
-                {isLoading() ? <span className={"animate-spin rounded-full h-3 w-3 border-b-2 border-current"}/> :
-                  <LuUserPlus/>} {t("shared.userAdd")}
-              </Button>
-            </div>
-            <TableUser data={userListQuery?.data}
-                       onCreateClicked={onDataCreated}
-                       onEditClicked={onDataPut}
-                       onDeleteClicked={(item: any) => onDeleteData(item)}
-                       onPasswordChange={(item: any) => onPasswordChange(item)}
-                       loading={isLoading()}
-            />
-
-            <DataTableUser data={userListQuery?.data}
-                       onCreateClicked={onDataCreated}
-                       onEditClicked={onDataPut}
-                       onDeleteClicked={(item: any) => onDeleteData(item)}
-                       onPasswordChange={(item: any) => onPasswordChange(item)}
-                       loading={isLoading()}
-            />
-          </div>
-        }
-
+  const ViewAddUser = () => {
+    return (
+      <div>
+        <Button variant={"outline"} size={"sm"} onClick={onDataCreated} disabled={isLoading()}>
+          {isLoading() ? <span className={"animate-spin rounded-full h-3 w-3 border-b-2 border-current"}/> :
+            <LuUserPlus/>} {t("shared.userAdd")}
+        </Button>
       </div>
+    )
+  }
+
+  return (
+    <div className={"divContent"}>
+      <PageTitle title={<div>User List</div>} showSeparator={false}/>
+
+      {(dataListQuery.isPending) && <div className={"h-full w-full flex"}>
+        <SkeTable/>
+      </div>}
+
+      {dataListQuery.isError &&
+        <div className={"text-lg text-destructive"}>Error: {dataListQuery?.error?.message}</div>}
+
+      {dataListQuery.isSuccess &&
+        <div className={"bg-card p-2 flex flex-col gap-2"}>
+
+
+          <DataTableUser data={dataListQuery?.data}
+                         onEditClicked={onDataPut}
+                         onDeleteClicked={onDeleteData}
+                         onPasswordChange={onPasswordChange}
+                         loading={isLoading()}
+                         toolbarContent={<ViewAddUser/>}
+          />
+        </div>
+      }
 
       {confirmationCreate && <DialogModalForm modal={confirmationCreate}/>}
       {confirmationPut && <DialogModalForm modal={confirmationPut}/>}

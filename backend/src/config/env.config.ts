@@ -20,13 +20,16 @@ export const schema = Type.Object({
   BETTER_AUTH_SECRET: Type.String({ default: 'secret' }),
 });
 
-// Delete only keys defined in schema from process.env
-for (const key of Object.keys(schema.properties)) {
-  delete process.env[key];
-}
+// Only run in Node.js environment
+if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+  // Delete only keys defined in schema from process.env
+  for (const key of Object.keys(schema.properties)) {
+    delete process.env[key];
+  }
 
-// set env file
-dotenv.config({ path: process.env.NODE_ENV === 'development' ? '.env.devel' : '.env' });
+  // set env file
+  dotenv.config({ path: process.env.NODE_ENV === 'development' ? '.env.devel' : '.env' });
+}
 
 import { type Static, Type } from '@sinclair/typebox';
 import envSchema from 'env-schema';

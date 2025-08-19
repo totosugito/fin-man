@@ -46,6 +46,7 @@ const localeId = {
       filter: "Filter",
       clear: "Clear",
       detail: "Detail",
+      projectCreate: "Create Project",
     },
     dialog: {
       excelFormatTitle: 'Excel Format',
