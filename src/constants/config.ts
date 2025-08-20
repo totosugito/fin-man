@@ -15,6 +15,6 @@ export const APP_CONFIG = {
   },
   path: {
     defaultPublic: "/login",
-    defaultPrivate: "/project",
+    defaultPrivate: "/project/list",
   }
 }

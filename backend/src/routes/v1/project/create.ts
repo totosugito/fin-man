@@ -94,7 +94,7 @@ const projectRoutes: FastifyPluginAsyncTypebox = async (app) => {
         const [newProject] = await tx.insert(projects).values({
           userId,
           name,
-          description: description || null,
+          description: description || "",
           status: EnumProjectStatus.draft,
         }).returning({
           id: projects.id,

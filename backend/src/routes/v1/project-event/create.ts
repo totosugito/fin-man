@@ -32,7 +32,7 @@ const projectEventRoutes: FastifyPluginAsyncTypebox = async (app) => {
     },
     handler: withErrorHandler(async (req, reply) => {
       const body = req.body as Static<typeof bodySchema>;
-      const {projectId, parentId, name, description, eventType, sortOrder, extra, eventCost} = body;
+      const {projectId, parentId, name, description="", eventType, sortOrder=0, extra={}, eventCost} = body;
 
       if (!projectId || !parentId) {
         return reply.status(400).send({

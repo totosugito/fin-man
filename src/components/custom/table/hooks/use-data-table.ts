@@ -52,8 +52,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
     initialState?.rowSelection ?? {},
   );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -62,6 +61,11 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [expanded, setExpanded] = useState<ExpandedState>(initialState?.expanded ?? {});
+
+  // const handleExpandedChange = (updater: ExpandedState | ((old: ExpandedState) => ExpandedState)) => {
+  //   setExpanded(updater);
+  //   onExpandedChange?.(updater);
+  // };
 
   const handleSortingChange = manualSorting ? onSortingChange : setSorting;
   const handlePaginationChange = manualPagination ? onPaginationChange : setPagination;

@@ -8,7 +8,6 @@ import {computeParentCost} from "../../../services/project-event/update-cost.ts"
 import {eventCost} from "../../../types/project-event.ts";
 
 const bodySchema = Type.Object({
-  id: Type.String({format: 'uuid'}),
   name: Type.Optional(Type.String()),
   description: Type.Optional(Type.String()),
   sortOrder: Type.Optional(Type.Number({minimum: 0})),
@@ -24,11 +23,14 @@ const updateProjectEvent: FastifyPluginAsyncTypebox = async (app) => {
       tags: ['Project Event'],
       summary: '',
       description: 'Update an existing project event with the provided details',
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' })
+      }),
       body: bodySchema,
     },
     handler: withErrorHandler(async (req, reply) => {
-      const body = req.body;
-      const {id, name, description, sortOrder, extra, eventCost} = body as typeof bodySchema;
+      const { id } = req.params as { id: string };
+      const {name, description="", sortOrder=0, extra={}, eventCost} = req.body as typeof bodySchema;
 
       // Check if event exists
       const existingEvent = await db.query.projectEvents.findFirst({
@@ -89,9 +91,6 @@ const updateProjectEvent: FastifyPluginAsyncTypebox = async (app) => {
       // Fetch and return the updated event
       const updatedEvent = await db.query.projectEvents.findFirst({
         where: eq(projectEvents.id, id),
-        with: {
-          cost: true
-        }
       });
 
       return {

@@ -6,8 +6,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {useProjectDetail} from "@/service/project";
 import {SkeTable} from "@/components/custom/skeleton";
 import {useEffect, useState} from "react";
-import {convertToTableData} from "@/lib/project-utils";
-import {DataTableView, FormDataCreate} from "@/components/pages/project/detail";
+import {DataTableView, FormProject, FormProjectEvent} from "@/components/pages/project/detail";
 import {useProjectEventCreate, useProjectEventDelete, useProjectEventPut} from "@/service/project-event";
 import {showNotifError, showNotifSuccess} from "@/lib/show-notif";
 import {DialogModal, DialogModalForm} from "@/components/custom/components";
@@ -18,7 +17,6 @@ import {EnumProjectEventType} from "backend/src/db/schema";
 export const Route = createFileRoute('/__authenticated/project/$id')({
   component: RouteComponent,
 })
-
 
 
 function RouteComponent() {
@@ -35,9 +33,9 @@ function RouteComponent() {
   const dataPutMutation = useProjectEventPut();
   const dataDeleteMutation = useProjectEventDelete();
 
-  const [tableData, setTableData] = React.useState<any[]>([]);
+  const [data, setData] = React.useState<any>(null);
 
-  const [formData, setFormData] = React.useState({
+  const formProject = {
     form: {
       name: {
         type: "text",
@@ -54,13 +52,70 @@ function RouteComponent() {
     },
     schema: {
       name: z.string().min(1, "Name is required"),
-      description: z.string().min(1, "description is required"),
+      description: z.string().optional(),
     },
     defaultValue: {
       name: "",
       description: "",
     }
-  });
+  };
+
+  const formProjectEvent = {
+    form: {
+      name: {
+        type: "text",
+        name: "name",
+        label: "Name",
+        placeholder: "",
+      },
+      description: {
+        type: "textarea",
+        name: "description",
+        label: "Description",
+        placeholder: "",
+      },
+      budgetIncome: {
+        type: "number",
+        name: "budgetIncome",
+        label: "Budget Income",
+        placeholder: "",
+      },
+      budgetExpense: {
+        type: "number",
+        name: "budgetExpense",
+        label: "Budget Expense",
+        placeholder: "",
+      },
+      realIncome: {
+        type: "number",
+        name: "realIncome",
+        label: "Real Income",
+        placeholder: "",
+      },
+      realExpense: {
+        type: "number",
+        name: "realExpense",
+        label: "Real Expense",
+        placeholder: "",
+      },
+    },
+    schema: {
+      name: z.string().min(1, "Name is required"),
+      description: z.string().optional(),
+      budgetIncome: z.number().min(0, "Budget Income is required"),
+      budgetExpense: z.number().min(0, "Budget Income is required"),
+      realIncome: z.number().min(0, "Real Income is required"),
+      realExpense: z.number().min(0, "Real Income is required"),
+    },
+    defaultValue: {
+      name: "",
+      description: "",
+      budgetIncome: 0,
+      budgetExpense: 0,
+      realIncome: 0,
+      realExpense: 0,
+    }
+  };
 
   const isLoading = () => {
     return (projectDetailQuery.isPending || dataCreateMutation.isPending || dataDeleteMutation.isPending);
@@ -68,7 +123,7 @@ function RouteComponent() {
 
   useEffect(() => {
     if (projectDetailQuery.data?.events) {
-      setTableData(convertToTableData(projectDetailQuery.data.events));
+      setData(projectDetailQuery.data);
     }
   }, [projectDetailQuery.data]);
 
@@ -76,10 +131,10 @@ function RouteComponent() {
     setConfirmationCreate({
       title: "Create Project",
       desc: "Please fill the form below to create new project.",
-      defaultValue: formData.defaultValue,
-      child: formData.form,
-      schema: formData.schema,
-      content: <FormDataCreate/>,
+      defaultValue: formProject.defaultValue,
+      child: formProject.form,
+      schema: formProject.schema,
+      content: <FormProject/>,
       onCancelClick: () => setConfirmationCreate(null),
       onConfirmClick: (body: Record<string, any>) => {
         const newBody = {
@@ -104,17 +159,42 @@ function RouteComponent() {
   }
 
   const onDataPut = (item: any) => {
+    const isFolder = item?.eventType === EnumProjectEventType.folder;
+    const child = isFolder ? formProject.form : formProjectEvent.form;
+    const schema = isFolder ? formProject.schema : formProjectEvent.schema;
+    const formHtml = isFolder ? <FormProject/> : <FormProjectEvent/>;
+    const defaultValue = isFolder ? item :
+      {
+        ...item,
+        eventType: item?.eventType,
+        budgetIncome: Number(item?.cost?.budgetIncome) ?? 0,
+        budgetExpense: Number(item?.cost?.budgetExpense) ?? 0,
+        realIncome: Number(item?.cost?.realIncome) ?? 0,
+        realExpense: Number(item?.cost?.realExpense) ?? 0
+      };
     setConfirmationPut({
       title: "Update Project Event",
       desc: "Please fill the form below to update project event.",
-      defaultValue: item,
-      child: formData.form,
-      schema: formData.schema,
-      content: <FormDataCreate/>,
+      defaultValue: defaultValue,
+      child: child,
+      schema: schema,
+      content: formHtml,
       textConfirm: "Update",
       onCancelClick: () => setConfirmationPut(null),
       onConfirmClick: (body: Record<string, any>) => {
-        dataPutMutation.mutate({id: item?.id, body: body}, {
+        const newBody = isFolder ? body :
+          {
+            name: body?.name ?? "",
+            description: body?.description ?? "",
+            eventType: body?.eventType,
+            eventCost: {
+              budgetIncome: String(body?.budgetIncome) ?? "0",
+              budgetExpense: String(body?.budgetExpense) ?? "0",
+              realIncome: String(body?.realIncome) ?? "0",
+              realExpense: String(body?.realExpense) ?? "0",
+            },
+          };
+        dataPutMutation.mutate({id: item?.id, body: newBody}, {
           onSuccess: async () => {
             await queryClient.invalidateQueries({queryKey: ['project-detail', id]});
             showNotifSuccess({message: "Project event updated successfully"});
@@ -155,7 +235,9 @@ function RouteComponent() {
 
   return (
     <div className={"divContent"}>
-      {projectDetailQuery.data && <PageTitle title={<div>{projectDetailQuery.data?.name}</div>} description={<div>{projectDetailQuery.data?.description}</div>} showSeparator={false}/>}
+      {data &&
+        <PageTitle title={<div>{data?.name ?? ""}</div>} description={<div>{projectDetailQuery.data?.description}</div>}
+                   showSeparator={false}/>}
       {(projectDetailQuery.isPending) && <div className={"h-full w-full flex"}>
         <SkeTable/>
       </div>}
@@ -163,9 +245,9 @@ function RouteComponent() {
       {projectDetailQuery.isError &&
         <div className={"text-lg text-destructive"}>Error: {projectDetailQuery?.error?.message}</div>}
 
-      {projectDetailQuery.data &&
+      {(!isLoading() && data) &&
         <div className={"bg-card p-2 flex flex-col gap-2"}>
-          <DataTableView data={tableData} onCreateGroup={onCreateGroup} onDeleteData={onDeleteData} onUpdateData={onDataPut}/>
+          <DataTableView defaultCurrency={""} data={data} onCreateGroup={onCreateGroup} onDeleteData={onDeleteData} onUpdateData={onDataPut}/>
         </div>
       }
 

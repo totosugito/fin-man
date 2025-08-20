@@ -2,7 +2,7 @@ import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
 import { withErrorHandler } from "../../../utils/withErrorHandler.ts";
 import { db } from "../../../db/index.ts";
-import { eq, asc, inArray } from "drizzle-orm";
+import { eq, asc, inArray, sql } from "drizzle-orm";
 import {
   projects,
   projectEvents,
@@ -59,6 +59,7 @@ const ProjectDetailsResponse = Type.Object({
     id: Type.String({ format: 'uuid' }),
     name: Type.String(),
     description: Type.Union([Type.String(), Type.Null()]),
+    maxDepth: Type.Number(),
     events: Type.Array(ProjectEvent)
   })
 });
@@ -184,12 +185,22 @@ const projectRoutes: FastifyPluginAsyncTypebox = async (app) => {
         });
       }
 
-      // 5. Return combined result
+      // 5. Get max depth from SQL
+      const maxDepthResult = await db
+        .select({ maxDepth: sql<number>`MAX(${projectEvents.depth})` })
+        .from(projectEvents)
+        .where(eq(projectEvents.projectId, id));
+      
+      const maxDepth = maxDepthResult[0]?.maxDepth ?? 0;
+      
+      // 6. Get the tree structure
       const tree = await getProjectDetails(id);
+      
       const data = {
         id: project.id,
         name: project.name,
         description: project.description,
+        maxDepth,
         events: tree,
       };
 
