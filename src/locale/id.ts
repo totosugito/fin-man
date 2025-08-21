@@ -86,6 +86,8 @@ const localeId = {
       monthAgo: "Month ago",
       yearAgo: "Year ago",
       today: "Today",
+      dayAgo: "Day ago",
+      lastUpdated: "Last Update",
     },
     message: {
       isNeeded: "is needed",

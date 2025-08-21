@@ -5,7 +5,7 @@ import {useProjectCreate, useProjectDelete, useProjectList, useProjectPut} from 
 import {PageTitle} from "@/components/app";
 import * as React from "react";
 import {SkeTable} from "@/components/custom/skeleton";
-import {DataTableView, FormDataCreate} from "@/components/pages/project/list";
+import {DataTableView, ProjectCardView, FormDataCreate} from "@/components/pages/project/list";
 import {Button} from "@/components/ui/button";
 import {PlusIcon} from "lucide-react";
 import {showNotifError, showNotifSuccess} from "@/lib/show-notif";
@@ -26,6 +26,7 @@ function RouteComponent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {sort, order} = Route.useSearch();
+  const [viewMode, setViewMode] = React.useState<'table' | 'card'>('card');
 
   const dataListQuery = useProjectList({sort, order});
   const dataCreateMutation = useProjectCreate();
@@ -160,10 +161,28 @@ function RouteComponent() {
 
   const ViewAddItem = () => {
     return (
-      <div>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center border rounded-md p-0.5 bg-muted/20">
+          <Button
+            variant={viewMode === 'table' ? 'default' : 'ghost'}
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+            onClick={() => setViewMode('table')}
+          >
+            Table
+          </Button>
+          <Button
+            variant={viewMode === 'card' ? 'default' : 'ghost'}
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+            onClick={() => setViewMode('card')}
+          >
+            Card
+          </Button>
+        </div>
         <Button variant={"outline"} size={"sm"} onClick={onDataCreated} disabled={isLoading()}>
           {isLoading() ? <span className={"animate-spin rounded-full h-3 w-3 border-b-2 border-current"}/> :
-            <PlusIcon/>} {t("shared.projectCreate")}
+            <PlusIcon className="h-3.5 w-3.5 mr-1"/>} {t("shared.projectCreate")}
         </Button>
       </div>
     )
@@ -180,18 +199,34 @@ function RouteComponent() {
       {dataListQuery.isError &&
         <div className={"text-lg text-destructive"}>Error: {dataListQuery?.error?.message}</div>}
 
-      {dataListQuery.isSuccess &&
-        <div className={"bg-card p-2 flex flex-col gap-2"}>
-
-          <DataTableView data={dataListQuery?.data}
-                         onEditClicked={onDataPut}
-                         onDeleteClicked={onDeleteData}
-                         onShowDetail={onShowDetail}
-                         loading={isLoading()}
-                         toolbarContent={<ViewAddItem/>}
-          />
+      {dataListQuery.isSuccess && (
+        <div className="bg-card p-2 flex flex-col gap-2">
+          {viewMode === 'table' ? (
+            <DataTableView
+              data={dataListQuery?.data}
+              onEditClicked={onDataPut}
+              onDeleteClicked={onDeleteData}
+              onShowDetail={onShowDetail}
+              loading={isLoading()}
+              toolbarContent={<ViewAddItem/>}
+            />
+          ) : (
+            <div className="space-y-4">
+              <div className="flex justify-end">
+                <ViewAddItem/>
+              </div>
+              <ProjectCardView
+                data={dataListQuery?.data?.data || []}
+                onEditClicked={onDataPut}
+                onDeleteClicked={onDeleteData}
+                onShowDetail={onShowDetail}
+                loading={isLoading()}
+                t={t}
+              />
+            </div>
+          )}
         </div>
-      }
+      )}
 
       {confirmationCreate && <DialogModalForm modal={confirmationCreate}/>}
       {confirmationPut && <DialogModalForm modal={confirmationPut}/>}
