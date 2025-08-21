@@ -32,11 +32,7 @@ const FormNumber = ({
                            } else if (item?.suffix) {
                              return (`${value} ${item?.suffix}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","))
                            } else {
-                             // if (item?.isInt) {
-                             //   return (value);
-                             // } else {
-                               return (`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','))
-                             // }
+                             return (`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','))
                            }
                          }}
                          {...field}

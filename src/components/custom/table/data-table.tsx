@@ -1,7 +1,7 @@
-import { flexRender, type Table as TanstackTable } from "@tanstack/react-table";
+import {flexRender, type Table as TanstackTable} from "@tanstack/react-table";
 import type * as React from "react";
 
-import { DataTablePagination } from "./data-table-pagination";
+import {DataTablePagination} from "./data-table-pagination";
 import {
   Table,
   TableBody,
@@ -10,8 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getCommonPinningStyles } from "./lib/data-table";
-import { cn } from "@/lib/utils";
+import {getCommonPinningStyles} from "./lib/data-table";
+import {cn} from "@/lib/utils";
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>;
@@ -23,8 +23,11 @@ export function DataTable<TData>({
                                    actionBar,
                                    children,
                                    className,
+                                   pageSizeOptions,
                                    ...props
-                                 }: DataTableProps<TData>) {
+                                 }: DataTableProps<TData> & { pageSizeOptions?: number[] }) {
+  const rowLength = table.getFilteredSelectedRowModel().rows.length;
+
   return (
     <div
       className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)}
@@ -41,7 +44,7 @@ export function DataTable<TData>({
                     key={header.id}
                     colSpan={header.colSpan}
                     style={{
-                      ...getCommonPinningStyles({ column: header.column }),
+                      ...getCommonPinningStyles({column: header.column}),
                     }}
                   >
                     {header.isPlaceholder
@@ -66,7 +69,7 @@ export function DataTable<TData>({
                     <TableCell
                       key={cell.id}
                       style={{
-                        ...getCommonPinningStyles({ column: cell.column }),
+                        ...getCommonPinningStyles({column: cell.column}),
                       }}
                     >
                       {flexRender(
@@ -91,8 +94,13 @@ export function DataTable<TData>({
         </Table>
       </div>
       <div className="flex flex-col gap-2.5">
-        <DataTablePagination table={table} />
-        {actionBar && table.getFilteredSelectedRowModel().rows.length > 0 && actionBar}
+        <DataTablePagination
+          table={table}
+          pageSizeOptions={pageSizeOptions}
+          showPagination={rowLength > (pageSizeOptions?.[0] ?? 10)}
+        />
+
+        {(actionBar && (rowLength > 0)) && actionBar}
       </div>
     </div>
   );

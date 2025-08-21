@@ -28,8 +28,7 @@ interface UseDataTableProps<TData>
   >,
     Required<Pick<TableOptions<TData>, "pageCount">> {
   getSubRows?: (row: TData) => TData[] | undefined;
-  initialState?: Omit<Partial<TableState>, "sorting" | "columnFilters"> & {
-  };
+  initialState?: Omit<Partial<TableState>, "sorting" | "columnFilters"> & {};
 }
 
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
@@ -55,10 +54,12 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  const [pagination, setPagination] = React.useState<PaginationState>(
+    initialState?.pagination ??
+    {
+      pageIndex: 0,
+      pageSize: 10,
+    });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [expanded, setExpanded] = useState<ExpandedState>(initialState?.expanded ?? {});
 
@@ -111,5 +112,5 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     }
   });
 
-  return { table };
+  return {table};
 }

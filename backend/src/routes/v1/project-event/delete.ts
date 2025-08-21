@@ -67,7 +67,7 @@ const deleteProjectEvent: FastifyPluginAsyncTypebox = async (app) => {
 
         // Recalculate parent costs if this event had a parent
         if (parentId) {
-          await computeParentCost(parentId);
+          await computeParentCost(parentId, tx);
         }
       });
 

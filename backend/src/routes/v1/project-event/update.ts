@@ -84,8 +84,8 @@ const updateProjectEvent: FastifyPluginAsyncTypebox = async (app) => {
             .where(eq(projectsCost.projectEventId, id));
         }
 
-        // Recalculate parent costs
-        await computeParentCost(id);
+        // Recalculate parent costs using the transaction
+        await computeParentCost(id, tx);
       });
 
       // Fetch and return the updated event

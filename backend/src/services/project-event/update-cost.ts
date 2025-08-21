@@ -1,7 +1,8 @@
 import { and, eq, sql } from "drizzle-orm";
-import {projectsCost, projectEvents, EnumProjectEventType} from "../../db/schema/index.ts";
+import { projectsCost, projectEvents, EnumProjectEventType } from "../../db/schema/index.ts";
 import { db } from "../../db/index.ts";
-
+import * as schema from "../../db/schema/index.ts";
+import {NodePgDatabase} from "drizzle-orm/node-postgres";
 interface CurrencySummary {
   [currency: string]: {
     budgetIncome: string;
@@ -11,40 +12,45 @@ interface CurrencySummary {
   };
 }
 
-export const computeParentCost = async (parentId: string) => {
-  // Then recursively update all ancestor folders
+type DbOrTx = NodePgDatabase<typeof schema>;
+
+export const computeParentCost = async (
+  parentId: string,
+  tx: DbOrTx = db
+) => {
   let currentParentId = parentId;
+
   while (currentParentId) {
-    // Get the parent event to find its parentId
-    const parentEvent = await db.query.projectEvents.findFirst({
+    // Get the parent event
+    const parentEvent = await tx.query.projectEvents.findFirst({
       where: eq(projectEvents.id, currentParentId),
       columns: {
         id: true,
-        parentId: true
-      }
+        parentId: true,
+      },
     });
 
     if (!parentEvent) break;
 
-    // Update the cost for this parent
-    await computeEventCost(parentEvent.id);
+    // Update cost inside the same tx
+    await computeEventCost(parentEvent.id, tx);
 
-    // Move up to the next parent
-    currentParentId = parentEvent.parentId || '';
+    currentParentId = parentEvent.parentId || "";
 
-    // Stop if we've reached the root (no more parents)
     if (!currentParentId) break;
   }
-}
+};
 
-export const computeEventCost = async (parentId: string) => {
-  // Get the parent event to get its path
-  const parentEvent = await db.query.projectEvents.findFirst({
+export const computeEventCost = async (
+  parentId: string,
+  tx: DbOrTx = db
+) => {
+  const parentEvent = await tx.query.projectEvents.findFirst({
     where: eq(projectEvents.id, parentId),
     columns: {
       path: true,
-      eventType: true
-    }
+      eventType: true,
+    },
   });
 
   if (!parentEvent) return;
@@ -53,11 +59,9 @@ export const computeEventCost = async (parentId: string) => {
     return;
   }
 
-  // For folders, get all file events under this folder's path
   const isFolder = parentEvent.eventType === EnumProjectEventType.folder;
 
-  // Get all file events under this parent, including nested ones, grouped by currency
-  const currencyGroups = await db
+  const currencyGroups = await tx
     .select({
       currency: projectsCost.budgetIncomeCurrency,
       budgetIncome: sql<number>`COALESCE(SUM(CAST(${projectsCost.budgetIncome} AS NUMERIC)), 0)`,
@@ -79,9 +83,7 @@ export const computeEventCost = async (parentId: string) => {
     )
     .groupBy(projectsCost.budgetIncomeCurrency);
 
-  // Convert to the required format for eventSummary
   const eventSummary: CurrencySummary = {};
-
   for (const group of currencyGroups) {
     if (group.currency) {
       eventSummary[group.currency] = {
@@ -93,12 +95,11 @@ export const computeEventCost = async (parentId: string) => {
     }
   }
 
-  // Update the parent's projectsCost with the summary
-  await db
+  await tx
     .update(projectsCost)
     .set({
       eventSummary: eventSummary,
       updatedAt: sql`NOW()`,
     })
     .where(eq(projectsCost.projectEventId, parentId));
-}
+};

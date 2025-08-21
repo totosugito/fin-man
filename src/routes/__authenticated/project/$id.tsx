@@ -13,6 +13,8 @@ import {DialogModal, DialogModalForm} from "@/components/custom/components";
 import {ModalFormProps, ModalProps} from "@/types/dialog";
 import {z} from "zod";
 import {EnumProjectEventType} from "backend/src/db/schema";
+import {ObjToOptionList, ObjToOptionListValue} from "@/lib/my-utils";
+import {CurrencyList} from "@/constants/app-enum";
 
 export const Route = createFileRoute('/__authenticated/project/$id')({
   component: RouteComponent,
@@ -60,6 +62,7 @@ function RouteComponent() {
     }
   };
 
+  const optionsCurrency = ObjToOptionListValue(CurrencyList);
   const formProjectEvent = {
     form: {
       name: {
@@ -74,11 +77,23 @@ function RouteComponent() {
         label: "Description",
         placeholder: "",
       },
+      budgetIncomeCurrency: {
+        type: "select",
+        name: "budgetIncomeCurrency",
+        label: "",
+        options: optionsCurrency,
+      },
       budgetIncome: {
         type: "number",
         name: "budgetIncome",
         label: "Budget Income",
         placeholder: "",
+      },
+      budgetExpenseCurrency: {
+        type: "select",
+        name: "budgetExpenseCurrency",
+        label: "",
+        options: optionsCurrency,
       },
       budgetExpense: {
         type: "number",
@@ -86,11 +101,23 @@ function RouteComponent() {
         label: "Budget Expense",
         placeholder: "",
       },
+      realIncomeCurrency: {
+        type: "select",
+        name: "realIncomeCurrency",
+        label: "",
+        options: optionsCurrency,
+      },
       realIncome: {
         type: "number",
         name: "realIncome",
         label: "Real Income",
         placeholder: "",
+      },
+      realExpenseCurrency: {
+        type: "select",
+        name: "realExpenseCurrency",
+        label: "",
+        options: optionsCurrency,
       },
       realExpense: {
         type: "number",
@@ -102,17 +129,25 @@ function RouteComponent() {
     schema: {
       name: z.string().min(1, "Name is required"),
       description: z.string().optional(),
+      budgetIncomeCurrency: z.string().min(1, "Budget Income Currency is required"),
       budgetIncome: z.number().min(0, "Budget Income is required"),
+      budgetExpenseCurrency: z.string().min(1, "Budget Income Currency is required"),
       budgetExpense: z.number().min(0, "Budget Income is required"),
+      realIncomeCurrency: z.string().min(1, "Real Income Currency is required"),
       realIncome: z.number().min(0, "Real Income is required"),
+      realExpenseCurrency: z.string().min(1, "Real Income Currency is required"),
       realExpense: z.number().min(0, "Real Income is required"),
     },
     defaultValue: {
       name: "",
       description: "",
+      budgetIncomeCurrency: CurrencyList.IDR.value,
       budgetIncome: 0,
+      budgetExpenseCurrency: CurrencyList.IDR.value,
       budgetExpense: 0,
+      realIncomeCurrency: CurrencyList.IDR.value,
       realIncome: 0,
+      realExpenseCurrency: CurrencyList.IDR.value,
       realExpense: 0,
     }
   };
@@ -129,8 +164,8 @@ function RouteComponent() {
 
   const onCreateGroup = (item: any) => {
     setConfirmationCreate({
-      title: "Create Project",
-      desc: "Please fill the form below to create new project.",
+      title: "Create Group",
+      desc: "Please fill the form below to create new group.",
       defaultValue: formProject.defaultValue,
       child: formProject.form,
       schema: formProject.schema,
@@ -158,6 +193,48 @@ function RouteComponent() {
     });
   }
 
+  const onCreateEvent = (item: any) => {
+    setConfirmationCreate({
+      title: "Create Event",
+      desc: "Please fill the form below to create new event.",
+      defaultValue: formProjectEvent.defaultValue,
+      child: formProjectEvent.form,
+      schema: formProjectEvent.schema,
+      content: <FormProjectEvent/>,
+      onCancelClick: () => setConfirmationCreate(null),
+      onConfirmClick: (body: Record<string, any>) => {
+        const newBody = {
+          projectId: id,
+          parentId: item.id,
+          eventType: EnumProjectEventType.file,
+          name: body?.name ?? "",
+          description: body?.description ?? "",
+          sortOrder: 0,
+          eventCost: {
+            budgetIncomeCurrency: body?.budgetIncomeCurrency ?? CurrencyList.IDR.value,
+            budgetIncome: String(body?.budgetIncome) ?? "0",
+            budgetExpenseCurrency: body?.budgetExpenseCurrency ?? CurrencyList.IDR.value,
+            budgetExpense: String(body?.budgetExpense) ?? "0",
+            realIncomeCurrency: body?.realIncomeCurrency ?? CurrencyList.IDR.value,
+            realIncome: String(body?.realIncome) ?? "0",
+            realExpenseCurrency: body?.realExpenseCurrency ?? CurrencyList.IDR.value,
+            realExpense: String(body?.realExpense) ?? "0",
+          }
+        }
+        dataCreateMutation.mutate({body: newBody}, {
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({queryKey: ['project-detail', id]});
+            showNotifSuccess({message: "Project Event created successfully"});
+            setConfirmationCreate(null);
+          },
+          onError: (error: any) => {
+            showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message})
+          },
+        });
+      },
+    });
+  }
+
   const onDataPut = (item: any) => {
     const isFolder = item?.eventType === EnumProjectEventType.folder;
     const child = isFolder ? formProject.form : formProjectEvent.form;
@@ -167,9 +244,13 @@ function RouteComponent() {
       {
         ...item,
         eventType: item?.eventType,
+        budgetIncomeCurrency: item?.cost?.budgetIncomeCurrency ?? CurrencyList.IDR.value,
         budgetIncome: Number(item?.cost?.budgetIncome) ?? 0,
+        budgetExpenseCurrency: item?.cost?.budgetExpenseCurrency ?? CurrencyList.IDR.value,
         budgetExpense: Number(item?.cost?.budgetExpense) ?? 0,
+        realIncomeCurrency: item?.cost?.realIncomeCurrency ?? CurrencyList.IDR.value,
         realIncome: Number(item?.cost?.realIncome) ?? 0,
+        realExpenseCurrency: item?.cost?.realExpenseCurrency ?? CurrencyList.IDR.value,
         realExpense: Number(item?.cost?.realExpense) ?? 0
       };
     setConfirmationPut({
@@ -188,9 +269,13 @@ function RouteComponent() {
             description: body?.description ?? "",
             eventType: body?.eventType,
             eventCost: {
+              budgetIncomeCurrency: body?.budgetIncomeCurrency ?? CurrencyList.IDR.value,
               budgetIncome: String(body?.budgetIncome) ?? "0",
+              budgetExpenseCurrency: body?.budgetExpenseCurrency ?? CurrencyList.IDR.value,
               budgetExpense: String(body?.budgetExpense) ?? "0",
+              realIncomeCurrency: body?.realIncomeCurrency ?? CurrencyList.IDR.value,
               realIncome: String(body?.realIncome) ?? "0",
+              realExpenseCurrency: body?.realExpenseCurrency ?? CurrencyList.IDR.value,
               realExpense: String(body?.realExpense) ?? "0",
             },
           };
@@ -247,7 +332,9 @@ function RouteComponent() {
 
       {(!isLoading() && data) &&
         <div className={"bg-card p-2 flex flex-col gap-2"}>
-          <DataTableView defaultCurrency={""} data={data} onCreateGroup={onCreateGroup} onDeleteData={onDeleteData} onUpdateData={onDataPut}/>
+          <DataTableView defaultCurrency={""} data={data} onCreateGroup={onCreateGroup}
+                         onCreateEvent={onCreateEvent}
+                         onDeleteData={onDeleteData} onUpdateData={onDataPut}/>
         </div>
       }
 

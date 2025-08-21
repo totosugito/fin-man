@@ -2,7 +2,6 @@ import {
   ColumnDef,
   ExpandedState,
   Row,
-  flexRender,
 } from "@tanstack/react-table";
 import React, {useEffect, useMemo, useState} from "react";
 import {ProjectMember} from "@/lib/project-utils";
@@ -22,11 +21,15 @@ type Props = {
   defaultCurrency: string;
   data: any;
   onCreateGroup: (item: any) => void;
+  onCreateEvent: (item: any) => void;
   onDeleteData: (item: any) => void;
   onUpdateData: (item: any) => void;
 };
 
-export const DataTableView = ({defaultCurrency = "", data, onCreateGroup, onDeleteData, onUpdateData}: Props) => {
+export const DataTableView = ({
+                                defaultCurrency = "", data, onCreateGroup,
+                                onCreateEvent, onDeleteData, onUpdateData
+                              }: Props) => {
   const iconSize = 18;
   const styleFolder = "text-blue-500";
   const [maxDepth, setMaxDepth] = useState(1);
@@ -77,13 +80,16 @@ export const DataTableView = ({defaultCurrency = "", data, onCreateGroup, onDele
 
               </ContextMenuTrigger>
               <ContextMenuContent className="w-40">
-                {isFolder && <ContextMenuItem onClick={() => onCreateGroup(row.original)}>
-                  New Group
-                </ContextMenuItem>
+                {isFolder &&
+                  <>
+                    <ContextMenuItem onClick={() => onCreateGroup(row.original)}>
+                      New Group
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onCreateEvent(row.original)}>
+                      New Event
+                    </ContextMenuItem>
+                  </>
                 }
-                <ContextMenuItem onClick={() => console.log('Insert clicked', row.original)}>
-                  New Event
-                </ContextMenuItem>
                 <ContextMenuItem onClick={() => onUpdateData(row.original)}>
                   Edit
                 </ContextMenuItem>
@@ -174,12 +180,13 @@ export const DataTableView = ({defaultCurrency = "", data, onCreateGroup, onDele
     pageCount: 1,
     initialState: {
       columnPinning: {left: ["action"]},
-      pagination: {pageIndex: 0, pageSize: 10},
+      pagination: {pageIndex: 0, pageSize: 20},
       expanded: expanded,
     },
     onExpandedChange: setExpanded,
     manualSorting: false,
     manualExpanding: false,
+    manualPagination: false,
   });
 
   return (

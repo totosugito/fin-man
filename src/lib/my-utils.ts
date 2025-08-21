@@ -269,3 +269,7 @@ export function getDaysFromCurrentDate(t: (key: string) => string, date: Date | 
 export const ObjToOptionList = (obj: Record<string, string>) => {
   return Object.keys(obj).map((key) => ({value: key, label: obj[key]}));
 }
+
+export const ObjToOptionListValue = (obj: Record<string, Record<string, string>>) => {
+  return Object.keys(obj).map((key) => ({value: key, label: obj[key]["value"]}));
+}
