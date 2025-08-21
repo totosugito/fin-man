@@ -1,20 +1,21 @@
-import {createFileRoute} from '@tanstack/react-router'
-import {PageTitle} from "@/components/app";
-import * as React from "react";
-import {useTranslation} from "react-i18next";
-import {useQueryClient} from "@tanstack/react-query";
-import {useProjectDetail} from "@/service/project";
-import {SkeTable} from "@/components/custom/skeleton";
+import {createFileRoute} from '@tanstack/react-router';
+import * as React from 'react';
+import {useTranslation} from 'react-i18next';
+import {useQueryClient} from '@tanstack/react-query';
+import {useProjectDetail} from '@/service/project';
+import {SkeTable} from '@/components/custom/skeleton';
+import {DataTableView, FormProject, FormProjectEvent} from '@/components/pages/project/detail';
+import {CurrencyCard} from '@/components/pages/project/detail/CurrencyCard';
+import {useProjectEventCreate, useProjectEventDelete, useProjectEventPut} from '@/service/project-event';
+import {showNotifError, showNotifSuccess} from '@/lib/show-notif';
+import {DialogModal, DialogModalForm} from '@/components/custom/components';
+import {ModalFormProps, ModalProps} from '@/types/dialog';
+import {z} from 'zod';
+import {EnumProjectEventType} from 'backend/src/db/schema';
+import {ObjToOptionListValue} from '@/lib/my-utils';
+import {CurrencyList} from '@/constants/app-enum';
+import {PageTitle} from '@/components/app';
 import {useEffect, useState} from "react";
-import {DataTableView, FormProject, FormProjectEvent} from "@/components/pages/project/detail";
-import {useProjectEventCreate, useProjectEventDelete, useProjectEventPut} from "@/service/project-event";
-import {showNotifError, showNotifSuccess} from "@/lib/show-notif";
-import {DialogModal, DialogModalForm} from "@/components/custom/components";
-import {ModalFormProps, ModalProps} from "@/types/dialog";
-import {z} from "zod";
-import {EnumProjectEventType} from "backend/src/db/schema";
-import {ObjToOptionList, ObjToOptionListValue} from "@/lib/my-utils";
-import {CurrencyList} from "@/constants/app-enum";
 
 export const Route = createFileRoute('/__authenticated/project/$id')({
   component: RouteComponent,
@@ -36,6 +37,8 @@ function RouteComponent() {
   const dataDeleteMutation = useProjectEventDelete();
 
   const [data, setData] = React.useState<any>(null);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const toggleExpand = () => setIsExpanded(prev => !prev);
 
   const formProject = {
     form: {
@@ -331,7 +334,23 @@ function RouteComponent() {
         <div className={"text-lg text-destructive"}>Error: {projectDetailQuery?.error?.message}</div>}
 
       {(!isLoading() && data) &&
-        <div className={"bg-card p-2 flex flex-col gap-2"}>
+        <div className={"p-2 flex flex-col gap-2"}>
+          <div className={"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4"}>
+            {data?.events?.[0]?.cost && Object.entries(data.events[0].cost).map(([currency, values]: any) => (
+              <CurrencyCard
+                key={currency}
+                currency={currency}
+                isExpanded={isExpanded}
+                onToggleExpand={toggleExpand}
+                values={{
+                  budgetIncome: values.budgetIncome,
+                  budgetExpense: values.budgetExpense,
+                  realIncome: values.realIncome,
+                  realExpense: values.realExpense
+                }}
+              />
+            ))}
+          </div>
           <DataTableView defaultCurrency={""} data={data} onCreateGroup={onCreateGroup}
                          onCreateEvent={onCreateEvent}
                          onDeleteData={onDeleteData} onUpdateData={onDataPut}/>

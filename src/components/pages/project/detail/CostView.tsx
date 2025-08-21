@@ -1,5 +1,6 @@
 import {ProjectMember} from "@/lib/project-utils";
 import {EnumProjectEventType} from "backend/src/db/schema";
+import {cn} from "@/lib/utils";
 
 type CostItem = {
   budgetIncome: string;
@@ -24,18 +25,25 @@ const isEmptyCost = (value: string | undefined) => {
   return value === "0" || value === "" || value === "0.00";
 }
 
-const CurrencyView = ({currency, value}: { currency: string, value: string | undefined }) => {
+type PropsCurrencyView = {
+  currency: string,
+  value: string | undefined,
+  className?: string,
+  isFolder?: boolean
+}
+
+const CurrencyView = ({currency, value, className, isFolder}: PropsCurrencyView) => {
   if (!value) {
     return <div/>
   }
 
   return (
-    <div className={"text-right font-mono"}>{currency} {value}</div>
+    <div className={cn("text-right font-mono items-center", className)}>{isFolder ? String.fromCharCode(9679) : ""}{currency} {value}</div>
   )
 }
 
-const FolderCostView = ({currency, value, objKey, settings}:
-                        { currency: string, value: CostData, objKey: keyof CostItem, settings?: ProjectSettings }) => {
+const FolderCostView = ({currency, value, objKey, settings, className}:
+                        { currency: string, value: CostData, objKey: keyof CostItem, settings?: ProjectSettings, className?: string }) => {
   const showEmpty = settings?.showEmptyCost || false;
 
   if (currency === "") {
@@ -45,7 +53,8 @@ const FolderCostView = ({currency, value, objKey, settings}:
           if (showEmpty) {
             return <div key={key}>{key} {val[objKey]}</div>
           } else {
-            return (isEmptyCost(val[objKey] as string) ? null : <CurrencyView key={key} currency={key} value={val[objKey]}/>)
+            return (isEmptyCost(val[objKey] as string) ? null :
+              <CurrencyView key={key} currency={key} value={val[objKey]} className={className} isFolder={true}/>)
           }
         })}
       </div>
@@ -53,7 +62,7 @@ const FolderCostView = ({currency, value, objKey, settings}:
   }
 
   const display = value?.[currency]?.[objKey];
-  if(showEmpty) {
+  if (showEmpty) {
     return (<CurrencyView currency={currency} value={display}/>)
   }
 
@@ -72,6 +81,7 @@ type Props = {
 export const CostView = ({spacingPixel = 10, maxDepth, currency, cell, objKey, objKeyCurrency, settings}: Props) => {
   const eventType = cell.eventType;
   const depth = cell.depth;
+  const className = (objKey.includes("Expense")) ? "text-red-600" : "text-green-600";
 
   const showEmpty = settings?.showEmptyCost || false;
   if (!showEmpty && isEmptyCost(cell.cost[objKey])) {
@@ -79,18 +89,18 @@ export const CostView = ({spacingPixel = 10, maxDepth, currency, cell, objKey, o
   }
 
   if (eventType === EnumProjectEventType.folder) {
-    return (<div className={"text-right"} style={{paddingRight: `${(maxDepth - depth + 1) * spacingPixel}px`}}>
-      <FolderCostView currency={currency} value={cell.cost} objKey={objKey} settings={settings}/>
+    return (<div className={"text-right"} style={{paddingRight: `${(maxDepth - depth + 2) * spacingPixel}px`}}>
+      <FolderCostView currency={currency} value={cell.cost} objKey={objKey} settings={settings} className={className}/>
     </div>)
   }
 
   // event file/transaction
   const display = cell.cost[objKey];
-  if(showEmpty) {
+  if (showEmpty) {
     return (
       <CurrencyView currency={cell.cost[objKeyCurrency]} value={display}/>
     )
   }
 
-  return (isEmptyCost(display) ? null : <CurrencyView currency={cell.cost[objKeyCurrency]} value={display}/>)
+  return (isEmptyCost(display) ? null : <CurrencyView currency={cell.cost[objKeyCurrency]} value={display} className={className}/>)
 }

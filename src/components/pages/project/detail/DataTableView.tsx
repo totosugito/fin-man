@@ -72,9 +72,8 @@ export const DataTableView = ({
                   )}
 
                   <div className={"flex flex-row gap-1 items-center"}>
-                    {isFolder ? (row.getCanExpand() ? "" : <FolderIcon size={iconSize} className={styleFolder}/>) :
-                      <FileIcon size={iconSize}/>}
-                    {cell.getValue() as string}
+                    {isFolder ? (row.getCanExpand() ? "" : <FolderIcon size={iconSize} className={styleFolder}/>) : <FileIcon size={iconSize}/>}
+                    <span className={isFolder ? "font-semibold" : ""}>{cell.getValue() as string}</span>
                   </div>
                 </div>
 
@@ -108,6 +107,7 @@ export const DataTableView = ({
       {
         accessorKey: "cost.budgetIncome",
         enableSorting: true,
+        size: 100,
         header: ({column}) => {
           return (<DataTableColumnHeader column={column} title={"Budget Income"} className={"w-full flex-1 justify-end"}/>)
         },
@@ -124,6 +124,7 @@ export const DataTableView = ({
       {
         accessorKey: "cost.budgetExpense",
         enableSorting: true,
+        size: 100,
         header: ({column}) => {
           return (<DataTableColumnHeader column={column} title={"Budget Expense"} className={"w-full flex-1 justify-end"}/>)
         },
@@ -140,6 +141,7 @@ export const DataTableView = ({
       {
         accessorKey: "cost.realIncome",
         enableSorting: true,
+        size: 100,
         header: ({column}) => {
           return (<DataTableColumnHeader column={column} title={"Real Income"} className={"w-full flex-1 justify-end"}/>)
         },
@@ -156,6 +158,7 @@ export const DataTableView = ({
       {
         accessorKey: "cost.realExpense",
         enableSorting: true,
+        size: 100,
         header: ({column}) => {
           return (<DataTableColumnHeader column={column} title={"Real Expense"} className={"w-full flex-1 justify-end"}/>)
         },
@@ -190,7 +193,7 @@ export const DataTableView = ({
   });
 
   return (
-    <div>
+    <div className={"bg-card"}>
       <DataTable table={table}>
       </DataTable>
     </div>
