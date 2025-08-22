@@ -233,7 +233,7 @@ function RouteComponent() {
   const ViewAddUser = () => {
     return (
       <div>
-        <Button variant={"outline"} size={"sm"} onClick={onDataCreated} disabled={isLoading()}>
+        <Button variant={"outline"} onClick={onDataCreated} disabled={isLoading()}>
           {isLoading() ? <span className={"animate-spin rounded-full h-3 w-3 border-b-2 border-current"}/> :
             <LuUserPlus/>} {t("shared.userAdd")}
         </Button>

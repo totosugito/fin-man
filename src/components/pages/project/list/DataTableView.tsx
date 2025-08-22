@@ -15,7 +15,7 @@ import {
   useDataTable,
   DataTable,
   DataTableColumnHeader,
-  DataTableToolbar
+  DataTableFilter
 } from "@/components/custom/table";
 import type {ColumnDef} from "@tanstack/react-table";
 import {Text} from "lucide-react";
@@ -162,9 +162,9 @@ export const DataTableView = ({
   return (
     <div className={""}>
       <DataTable table={table}>
-        <DataTableToolbar table={table}>
+        <DataTableFilter table={table}>
           {toolbarContent}
-        </DataTableToolbar>
+        </DataTableFilter>
       </DataTable>
     </div>
   );

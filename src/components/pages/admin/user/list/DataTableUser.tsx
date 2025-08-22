@@ -16,16 +16,16 @@ import {
   useDataTable,
   DataTable,
   DataTableColumnHeader,
-  DataTableToolbar, DataTableViewOptions
+  DataTableFilter, DataTableViewOptions
 } from "@/components/custom/table";
-import type { ColumnDef } from "@tanstack/react-table";
-import { Text } from "lucide-react";
+import type {ColumnDef} from "@tanstack/react-table";
+import {Text} from "lucide-react";
 
 type User = {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
+  id: string;
+  name: string;
+  email: string;
+  role: string;
 };
 
 type Props = {
@@ -37,18 +37,20 @@ type Props = {
   toolbarContent?: React.ReactNode
 }
 
-const DataTableUser = ({data, loading, onDeleteClicked,
-                         onEditClicked, onPasswordChange, toolbarContent}: Props) => {
+const DataTableUser = ({
+                         data, loading, onDeleteClicked,
+                         onEditClicked, onPasswordChange, toolbarContent
+                       }: Props) => {
   const {t} = useTranslation();
 
   const columns = useMemo<ColumnDef<User>[]>(() => [
     {
       accessorKey: "#",
-      size: 40,
+      size: 80,
       enableSorting: false,
       indexed: true,
       header: ({column}) => {
-        return (<DataTableColumnHeader column={column} title={"No"} className={"justify-center w-full"}/>)
+        return (<DataTableColumnHeader column={column} title={"No"} className={"justify-center"}/>)
       },
       cell: ({row, table}) => {
         return <div
@@ -59,7 +61,9 @@ const DataTableUser = ({data, loading, onDeleteClicked,
       accessorKey: "name",
       enableSorting: true,
       header: ({column}) => {
-        return (<DataTableColumnHeader column={column} title={"Name"} className={"justify-center"}/>)
+        return (<div className={"flex w-full justify-center"}><DataTableColumnHeader column={column} title={"Name"}
+                                                                                     className={"justify-center"}/>
+        </div>)
       },
       cell: ({cell, row}) => (
         <div>
@@ -76,6 +80,7 @@ const DataTableUser = ({data, loading, onDeleteClicked,
         placeholder: "Search name...",
         variant: "text",
         icon: Text,
+        disableHiding: true,
       },
     },
     {
@@ -121,7 +126,7 @@ const DataTableUser = ({data, loading, onDeleteClicked,
                   <DropdownMenuItem onClick={() => onPasswordChange(row.original)}>
                     <CiLock/> {t("labels.changePassword")}
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator/>
                   <DropdownMenuItem onClick={() => onDeleteClicked(row.original)} className={"text-destructive"}>
                     <CiTrash className={"text-destructive"}/> {t("shared.delete")}
                   </DropdownMenuItem>
@@ -150,20 +155,16 @@ const DataTableUser = ({data, loading, onDeleteClicked,
     }
   });
 
-  // In DataTableUser.tsx
-  const [defaultVisibleColumns, setDefaultVisibleColumns] = React.useState<string[]>([
-    'name', 'email'  // Your default visible columns from the store
-  ]);
-
   return (
     <div className={""}>
       <DataTable table={table}>
-        <div className={"flex flex-row gap-2"}>
-          <DataTableViewOptions table={table} defaultVisibleColumns={defaultVisibleColumns} onReset={(columns) => console.log(columns)}/>
-        </div>
-        <DataTableToolbar table={table}>
+        <div className={"flex flex-row gap-2 justify-between"}>
+          <div className={"flex flex-row gap-2"}>
+            <DataTableFilter table={table}/>
+            <DataTableViewOptions table={table}/>
+          </div>
           {toolbarContent}
-        </DataTableToolbar>
+        </div>
       </DataTable>
     </div>
   );

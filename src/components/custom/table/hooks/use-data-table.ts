@@ -45,6 +45,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     onColumnFiltersChange,
     onExpandedChange,
     getSubRows,
+    columnResizeMode="onChange",
     ...tableProps
   } = props;
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
@@ -86,7 +87,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
-    onPaginationChange: handlePaginationChange,
+    onPaginationChange: handlePaginationChange, // const next = typeof updater === "function" ? updater(table.getState().pagination) : updater;
     onSortingChange: handleSortingChange,
     onColumnFiltersChange: handleColumnFiltersChange,
     onColumnVisibilityChange: setColumnVisibility,
@@ -101,6 +102,8 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     manualSorting: manualSorting,
     manualFiltering: manualFiltering,
     manualExpanding: manualExpanding,
+
+    columnResizeMode: columnResizeMode,
     meta: {
       ...(tableProps.meta ?? {}),
     }

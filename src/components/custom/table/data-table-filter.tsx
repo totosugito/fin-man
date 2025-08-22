@@ -1,23 +1,23 @@
 "use client";
 
-import type { Column, Table } from "@tanstack/react-table";
+import type { Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
 import * as React from "react";
-import { DataTableViewOptions } from "./data-table-view-options";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import type { ColumnWithMeta, ColumnMeta } from "./types/types";
 
-interface DataTableToolbarProps<TData> extends React.ComponentProps<"div"> {
+interface DataTableFilterProps<TData> extends React.ComponentProps<"div"> {
   table: Table<TData>;
 }
 
-export function DataTableToolbar<TData>({
+export function DataTableFilter<TData>({
                                           table,
                                           children,
                                           className,
                                           ...props
-                                        }: DataTableToolbarProps<TData>) {
+                                        }: DataTableFilterProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
   const columns = React.useMemo(
@@ -39,7 +39,7 @@ export function DataTableToolbar<TData>({
       )}
       {...props}
     >
-      <div className="flex flex-1 flex-wrap items-center gap-2">
+      <div className="relative flex flex-1 flex-wrap items-center gap-2">
         {columns.map((column) => (
           <DataTableToolbarFilter key={column.id} column={column} />
         ))}
@@ -47,32 +47,27 @@ export function DataTableToolbar<TData>({
         {isFiltered && (
           <Button
             aria-label="Reset filters"
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="border-dashed"
+            className="w-[32px] h-[32px] mr-[2px] mt-[2px] text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
             onClick={onReset}
           >
-            <X />
-            Reset
+            <X/>
           </Button>
         )}
-      </div>
-      <div className="flex items-center gap-2">
-        {children}
-        <DataTableViewOptions table={table} />
       </div>
     </div>
   );
 }
 interface DataTableToolbarFilterProps<TData> {
-  column: Column<TData>;
+  column: ColumnWithMeta<TData>;
 }
 
 function DataTableToolbarFilter<TData>({
                                          column,
                                        }: DataTableToolbarFilterProps<TData>) {
   {
-    const columnMeta = column.columnDef.meta;
+    const columnMeta = column.columnDef.meta as ColumnMeta<TData> | undefined;
 
     const onFilterRender = React.useCallback(() => {
       if (!columnMeta?.variant) return null;
@@ -84,7 +79,7 @@ function DataTableToolbarFilter<TData>({
               placeholder={columnMeta.placeholder ?? columnMeta.label}
               value={(column.getFilterValue() as string) ?? ""}
               onChange={(event) => column.setFilterValue(event.target.value)}
-              className="h-8 w-40 lg:w-56"
+              className="lg:w-56 focus-visible:ring-[0px] pe-9"
             />
           );
 
