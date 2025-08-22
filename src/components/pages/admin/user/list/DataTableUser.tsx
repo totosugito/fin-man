@@ -60,6 +60,7 @@ const DataTableUser = ({
     {
       accessorKey: "name",
       enableSorting: true,
+      enableColumnFilter: true,
       header: ({column}) => {
         return (<div className={"flex w-full justify-center"}><DataTableColumnHeader column={column} title={"Name"}
                                                                                      className={"justify-center"}/>
@@ -75,13 +76,6 @@ const DataTableUser = ({
           </div>
         </div>
       ),
-      meta: {
-        label: "Name",
-        placeholder: "Search name...",
-        variant: "text",
-        icon: Text,
-        disableHiding: true,
-      },
     },
     {
       accessorKey: "role",
@@ -160,7 +154,7 @@ const DataTableUser = ({
       <DataTable table={table}>
         <div className={"flex flex-row gap-2 justify-between"}>
           <div className={"flex flex-row gap-2"}>
-            <DataTableFilter table={table}/>
+            <DataTableFilter table={table} searchColumnIds={["name", "role"]} searchPlaceholder="Search by name or role..."/>
             <DataTableViewOptions table={table}/>
           </div>
           {toolbarContent}

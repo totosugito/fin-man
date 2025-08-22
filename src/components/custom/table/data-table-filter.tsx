@@ -1,32 +1,59 @@
 "use client";
 
 import type { Table } from "@tanstack/react-table";
-import { X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import type { ColumnWithMeta, ColumnMeta } from "./types/types";
 
 interface DataTableFilterProps<TData> extends React.ComponentProps<"div"> {
   table: Table<TData>;
+  searchPlaceholder?: string;
+  searchColumnIds?: string[];
 }
 
 export function DataTableFilter<TData>({
-                                          table,
-                                          children,
-                                          className,
-                                          ...props
-                                        }: DataTableFilterProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  table,
+  children,
+  className,
+  searchPlaceholder = "Search...",
+  searchColumnIds = [],
+  ...props
+}: DataTableFilterProps<TData>) {
+  const [searchValue, setSearchValue] = React.useState("");
 
-  const columns = React.useMemo(
-    () => table.getAllColumns().filter((column) => column.getCanFilter()),
-    [table],
-  );
+  // Handle global search
+  const handleGlobalSearch = (value: string) => {
+    setSearchValue(value);
+
+    if (searchColumnIds.length === 0) {
+      // If no specific columns provided, search in all string columns
+      const stringColumns = table.getAllColumns().filter(column =>
+        'accessorFn' in column.columnDef || 'accessorKey' in column.columnDef
+      );
+
+      table.setGlobalFilter(value);
+
+      // Also set individual column filters for searchable columns
+      stringColumns.forEach(column => {
+        column.setFilterValue(value || undefined);
+      });
+    } else {
+      // Search only in specified columns
+      searchColumnIds.forEach(columnId => {
+        const column = table.getColumn(columnId);
+        if (column) {
+          column.setFilterValue(value || undefined);
+        }
+      });
+    }
+  };
 
   const onReset = React.useCallback(() => {
+    setSearchValue("");
     table.resetColumnFilters();
+    table.setGlobalFilter(undefined);
   }, [table]);
 
   return (
@@ -39,73 +66,35 @@ export function DataTableFilter<TData>({
       )}
       {...props}
     >
-      <div className="relative flex flex-1 flex-wrap items-center gap-2">
-        {columns.map((column) => (
-          <DataTableToolbarFilter key={column.id} column={column} />
-        ))}
-
-        {isFiltered && (
-          <Button
-            aria-label="Reset filters"
-            variant="ghost"
-            size="sm"
-            className="w-[32px] h-[32px] mr-[2px] mt-[2px] text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={onReset}
-          >
-            <X/>
-          </Button>
-        )}
+      <div className="relative flex-1">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={searchPlaceholder}
+            value={searchValue}
+            onChange={(e) => handleGlobalSearch(e.target.value)}
+            className="w-64 pl-8 pr-8 focus-visible:ring-[0px]"
+          />
+          {searchValue && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-8 w-8 pt-1 text-muted-foreground/50 hover:bg-transparent hover:text-muted-foreground"
+              onClick={onReset}
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Clear search</span>
+            </Button>
+          )}
+        </div>
       </div>
+      
+      {/* Individual column filters (optional) */}
+      {React.Children.count(children) > 0 && (
+        <div className="flex items-center gap-2">
+          {children}
+        </div>
+      )}
     </div>
   );
-}
-interface DataTableToolbarFilterProps<TData> {
-  column: ColumnWithMeta<TData>;
-}
-
-function DataTableToolbarFilter<TData>({
-                                         column,
-                                       }: DataTableToolbarFilterProps<TData>) {
-  {
-    const columnMeta = column.columnDef.meta as ColumnMeta<TData> | undefined;
-
-    const onFilterRender = React.useCallback(() => {
-      if (!columnMeta?.variant) return null;
-
-      switch (columnMeta.variant) {
-        case "text":
-          return (
-            <Input
-              placeholder={columnMeta.placeholder ?? columnMeta.label}
-              value={(column.getFilterValue() as string) ?? ""}
-              onChange={(event) => column.setFilterValue(event.target.value)}
-              className="lg:w-56 focus-visible:ring-[0px] pe-9"
-            />
-          );
-
-        case "number":
-          return (
-            <div className="relative">
-              <Input
-                type="number"
-                inputMode="numeric"
-                placeholder={columnMeta.placeholder ?? columnMeta.label}
-                value={(column.getFilterValue() as string) ?? ""}
-                onChange={(event) => column.setFilterValue(event.target.value)}
-                className={cn("h-8 w-[120px]", columnMeta.unit && "pr-8")}
-              />
-              {columnMeta.unit && (
-                <span className="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm">
-                  {columnMeta.unit}
-                </span>
-              )}
-            </div>
-          );
-        default:
-          return null;
-      }
-    }, [column, columnMeta]);
-
-    return onFilterRender();
-  }
 }
