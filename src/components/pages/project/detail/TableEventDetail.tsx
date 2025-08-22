@@ -26,7 +26,7 @@ type Props = {
   onUpdateData: (item: any) => void;
 };
 
-export const DataTableView = ({
+export const TableEventDetail = ({
                                 defaultCurrency = "", data, onCreateGroup,
                                 onCreateEvent, onDeleteData, onUpdateData
                               }: Props) => {
@@ -41,6 +41,7 @@ export const DataTableView = ({
   const columns = useMemo<ColumnDef<ProjectMember>[]>(() => {
     return [
       {
+        id: "name",
         accessorKey: "name",
         enableSorting: true,
         header: ({column}) => {
@@ -52,7 +53,7 @@ export const DataTableView = ({
           return (
             <ContextMenu>
               <ContextMenuTrigger asChild className="w-full h-full">
-                <div className="flex items-center gap-1" style={{paddingLeft: `${row.depth * 1.8}rem`}}>
+                <div className="flex items-center gap-1" style={{paddingLeft: `${row.depth * 1.2}rem`}}>
                   {row.getCanExpand() && (
                     <div
                       onClick={(e) => {
@@ -180,10 +181,10 @@ export const DataTableView = ({
     data: data?.events || [],
     columns,
     getSubRows: (row) => row?.children,
-    pageCount: 1,
+    pageCount: -1,
     initialState: {
-      columnPinning: {left: ["action"]},
-      pagination: {pageIndex: 0, pageSize: 20},
+      columnPinning: {left: ["name"]},
+      pagination: {pageIndex: 0, pageSize: 10},
       expanded: expanded,
     },
     onExpandedChange: setExpanded,
@@ -193,8 +194,8 @@ export const DataTableView = ({
   });
 
   return (
-    <div className={"bg-card"}>
-      <DataTable table={table}>
+    <div className={"bg-card p-2 flex flex-col gap-2"}>
+      <DataTable table={table} pageSizeOptions={[5, 10, 20]}>
       </DataTable>
     </div>
   )

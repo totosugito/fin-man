@@ -16,7 +16,7 @@ import {
   useDataTable,
   DataTable,
   DataTableColumnHeader,
-  DataTableToolbar
+  DataTableToolbar, DataTableViewOptions
 } from "@/components/custom/table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Text } from "lucide-react";
@@ -138,17 +138,29 @@ const DataTableUser = ({data, loading, onDeleteClicked,
   const {table} = useDataTable({
     data: data?.data || [],
     columns,
-    pageCount: 1,
+    pageCount: -1,
     initialState: {
       columnPinning: {left: ["action"]},
-      pagination: {pageIndex: 0, pageSize: 10},
+      pagination: {pageIndex: 0, pageSize: 5},
     },
     manualSorting: false,
+    manualPagination: false,
+    onPaginationChange: (updater: any) => {
+      const next = typeof updater === "function" ? updater(table.getState().pagination) : updater;
+    }
   });
+
+  // In DataTableUser.tsx
+  const [defaultVisibleColumns, setDefaultVisibleColumns] = React.useState<string[]>([
+    'name', 'email'  // Your default visible columns from the store
+  ]);
 
   return (
     <div className={""}>
       <DataTable table={table}>
+        <div className={"flex flex-row gap-2"}>
+          <DataTableViewOptions table={table} defaultVisibleColumns={defaultVisibleColumns} onReset={(columns) => console.log(columns)}/>
+        </div>
         <DataTableToolbar table={table}>
           {toolbarContent}
         </DataTableToolbar>

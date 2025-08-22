@@ -4,7 +4,7 @@ import {useTranslation} from 'react-i18next';
 import {useQueryClient} from '@tanstack/react-query';
 import {useProjectDetail} from '@/service/project';
 import {SkeTable} from '@/components/custom/skeleton';
-import {DataTableView, FormProject, FormProjectEvent} from '@/components/pages/project/detail';
+import {TableEventDetail, FormProject, FormProjectEvent} from '@/components/pages/project/detail';
 import {CurrencyCard} from '@/components/pages/project/detail/CurrencyCard';
 import {useProjectEventCreate, useProjectEventDelete, useProjectEventPut} from '@/service/project-event';
 import {showNotifError, showNotifSuccess} from '@/lib/show-notif';
@@ -351,9 +351,14 @@ function RouteComponent() {
               />
             ))}
           </div>
-          <DataTableView defaultCurrency={""} data={data} onCreateGroup={onCreateGroup}
-                         onCreateEvent={onCreateEvent}
-                         onDeleteData={onDeleteData} onUpdateData={onDataPut}/>
+          <TableEventDetail
+            defaultCurrency={""}
+            data={data}
+            onCreateGroup={onCreateGroup}
+            onCreateEvent={onCreateEvent}
+            onDeleteData={onDeleteData}
+            onUpdateData={onDataPut}
+          />
         </div>
       }
 

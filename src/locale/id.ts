@@ -88,6 +88,8 @@ const localeId = {
       today: "Today",
       dayAgo: "Day ago",
       lastUpdated: "Last Update",
+      row: "Row",
+      of: "of",
     },
     message: {
       isNeeded: "is needed",

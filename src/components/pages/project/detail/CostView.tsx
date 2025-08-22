@@ -38,7 +38,9 @@ const CurrencyView = ({currency, value, className, isFolder}: PropsCurrencyView)
   }
 
   return (
-    <div className={cn("text-right font-mono items-center", className)}>{isFolder ? String.fromCharCode(9679) : ""}{currency} {value}</div>
+    <div className={cn("text-right items-center", className)}>
+      {isFolder ? String.fromCharCode(9679) : ""}
+      <span className={"font-mono text-[70%] text-foreground/70"}>{currency}</span> {value}</div>
   )
 }
 
