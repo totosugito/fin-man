@@ -125,7 +125,10 @@ export function DataTable<TData>({
                     <TableCell
                       className={cn("bg-[#fafafa] dark:bg-[#28313e] border py-1 px-2 w-12 text-center font-medium text-sm", styles?.TableHead?.default)}
                     >
-                      {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + index + 1}
+                      {paginationData 
+                        ? (paginationData.page - 1) * paginationData.limit + index + 1
+                        : table.getState().pagination.pageIndex * table.getState().pagination.pageSize + index + 1
+                      }
                     </TableCell>
                   )}
                   {row.getVisibleCells().map((cell) => (

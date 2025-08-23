@@ -164,6 +164,7 @@ const DataTableUser = ({
         table={table} 
         totalRowCount={paginationData.total}
         paginationData={paginationData}
+        pageSizeOptions={[1, 5,10]}
       >
         <div className={"flex flex-row gap-2 justify-between"}>
           <div className={"flex flex-row gap-2"}>

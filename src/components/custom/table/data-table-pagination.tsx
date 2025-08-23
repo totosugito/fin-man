@@ -171,12 +171,13 @@ export function DataTablePagination({
           </div>
 
           <Pagination>
-            <PaginationContent>
+            <PaginationContent className="inline-flex gap-0 -space-x-px rounded-md shadow-xs rtl:space-x-reverse">
               {(totalPages > 0) &&
                 pageNumbers.map((page: number, index: number) => (
-                  <PaginationItem key={index}>
+                  <PaginationItem key={index} className="[&:first-child>a]:rounded-s-md [&:last-child>a]:rounded-e-md">
                     {page < 0 ? <PaginationEllipsis/> :
-                      <PaginationLink
+                      <PaginationLink 
+                      // className="rounded-none shadow-none focus-visible:z-10 aria-disabled:pointer-events-none [&[aria-disabled]>svg]:opacity-50"
                         isActive={currentPageIndex === page}
                         onClick={() => {
                           handlePageChange(page);
