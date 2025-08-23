@@ -17,18 +17,64 @@ interface DataTablePaginationProps extends React.ComponentProps<"div"> {
   setPageSize: (pageSize: number) => void;
   rowsCount: number;
   pageSizeOptions?: number[];
+  paginationData?: { // Optional pagination object for manual pagination
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  onPaginationChange?: (paginationData: { page: number; limit: number; total: number; totalPages: number }) => void;
 }
 
 export function DataTablePagination({
                                              pageIndex, setPageIndex, pageSize, setPageSize,
                                              rowsCount,
                                              pageSizeOptions = [5, 10, 20, 30, 40, 50],
+                                             paginationData,
+                                             onPaginationChange,
                                              className,
                                            }: DataTablePaginationProps) {
 
   const {t} = useTranslation();
   const maxDisplayedPages = 1; // Number of pages to show before and after the current page
-  const pageCount = Math.ceil(rowsCount / pageSize);
+  
+  // Use pagination object data when available (for manual pagination)
+  const currentPageIndex = paginationData ? paginationData.page - 1 : pageIndex; // Convert 1-based to 0-based
+  const currentPageSize = paginationData ? paginationData.limit : pageSize;
+  const totalRowsCount = paginationData ? paginationData.total : rowsCount;
+  const pageCount = paginationData ? paginationData.totalPages : Math.ceil(rowsCount / pageSize);
+  
+  // Handle page changes
+  const handlePageChange = (newPageIndex: number) => {
+    if (paginationData && onPaginationChange) {
+      // For manual pagination, use callback with pagination object
+      onPaginationChange({
+        page: newPageIndex + 1, // Convert 0-based to 1-based
+        limit: currentPageSize,
+        total: paginationData.total,
+        totalPages: paginationData.totalPages,
+      });
+    } else {
+      // For automatic pagination, use TanStack Table methods
+      setPageIndex(newPageIndex);
+    }
+  };
+  
+  // Handle page size changes
+  const handlePageSizeChange = (newPageSize: number) => {
+    if (paginationData && onPaginationChange) {
+      // For manual pagination, use callback with pagination object
+      onPaginationChange({
+        page: 1, // Reset to first page when changing page size
+        limit: newPageSize,
+        total: paginationData.total,
+        totalPages: Math.ceil(paginationData.total / newPageSize),
+      });
+    } else {
+      // For automatic pagination, use TanStack Table methods
+      setPageSize(newPageSize);
+    }
+  };
 
   const generatePageNumbers = (): number[] => {
     const pageNumbers_ = [];
@@ -42,9 +88,9 @@ export function DataTablePagination({
     const filteredPageNumbers = [];
 
     // set left pagination
-    let idxLeftStart = (pageIndex - maxDisplayedPages) < 0 ? 0 : (pageIndex - maxDisplayedPages);
-    let addToTheRight = (pageIndex - idxLeftStart) < maxDisplayedPages ? (maxDisplayedPages - (pageIndex - idxLeftStart)) : 0;
-    let idxRightPos = pageIndex + maxDisplayedPages + addToTheRight + 1;
+    let idxLeftStart = (currentPageIndex - maxDisplayedPages) < 0 ? 0 : (currentPageIndex - maxDisplayedPages);
+    let addToTheRight = (currentPageIndex - idxLeftStart) < maxDisplayedPages ? (maxDisplayedPages - (currentPageIndex - idxLeftStart)) : 0;
+    let idxRightPos = currentPageIndex + maxDisplayedPages + addToTheRight + 1;
     let idxLeftEnd = idxRightPos >= pageCount ? pageCount : idxRightPos;
     if ((idxLeftEnd - idxLeftStart) < (maxDisplayedPages * 2 + 1)) {
       idxLeftStart = (idxLeftEnd - (maxDisplayedPages * 2) - 1) < 0 ? 0 : (idxLeftEnd - (maxDisplayedPages * 2) - 1);
@@ -77,12 +123,12 @@ export function DataTablePagination({
   }
 
   const pageNumbers = generatePageNumbers();
-  let startIndex = (pageSize * pageIndex) + 1;
-  if (startIndex >= rowsCount) {
+  let startIndex = (currentPageSize * currentPageIndex) + 1;
+  if (startIndex >= totalRowsCount) {
     startIndex = 1;
   }
 
-  const endIndex = Math.min(startIndex + pageSize - 1, rowsCount);
+  const endIndex = Math.min(startIndex + currentPageSize - 1, totalRowsCount);
   const totalPages = pageNumbers.length;
 
   return (
@@ -92,9 +138,9 @@ export function DataTablePagination({
       )}>
       <div>
         <div className="flex items-center justify-center text-sm text-foreground">
-          {t("labels.row")} {rowsCount > 0 ? startIndex : 0}<span className={"text-foreground px-[2px]"}>-</span>
+          {t("labels.row")} {totalRowsCount > 0 ? startIndex : 0}<span className={"text-foreground px-[2px]"}>-</span>
           {endIndex}<span className={"text-foreground px-[2px]"}>{t("labels.of")}</span>
-          {rowsCount}
+          {totalRowsCount}
         </div>
         {/*<div className="flex-1 whitespace-nowrap text-muted-foreground text-sm">*/}
         {/*  {table.getFilteredSelectedRowModel().rows.length} of{" "}*/}
@@ -102,17 +148,17 @@ export function DataTablePagination({
         {/*</div>*/}
       </div>
 
-      {(rowsCount >= (pageSizeOptions?.[0] ?? 5)) &&
+      {(totalRowsCount >= (pageSizeOptions?.[0] ?? 5)) &&
         <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
           <div className="flex items-center space-x-2">
             <Select
-              value={`${pageSize}`}
+              value={`${currentPageSize}`}
               onValueChange={(value) => {
-                setPageSize(Number(value));
+                handlePageSizeChange(Number(value));
               }}
             >
               <SelectTrigger className="h-8 w-[8.0rem] [&[data-size]]:h-8">
-                <SelectValue placeholder={pageSize}/>
+                <SelectValue placeholder={currentPageSize}/>
               </SelectTrigger>
               <SelectContent side="top">
                 {pageSizeOptions.map((pageSize) => (
@@ -131,9 +177,9 @@ export function DataTablePagination({
                   <PaginationItem key={index}>
                     {page < 0 ? <PaginationEllipsis/> :
                       <PaginationLink
-                        isActive={pageIndex === page}
+                        isActive={currentPageIndex === page}
                         onClick={() => {
-                          setPageIndex(page);
+                          handlePageChange(page);
                         }}
                       >
                         {page + 1}

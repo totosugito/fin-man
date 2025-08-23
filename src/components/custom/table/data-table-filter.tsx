@@ -1,7 +1,7 @@
 "use client";
 
 import type { Table } from "@tanstack/react-table";
-import { Search, X } from "lucide-react";
+import { Search, CircleXIcon } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,27 +26,41 @@ export function DataTableFilter<TData>({
   // Handle global search
   const handleGlobalSearch = (value: string) => {
     setSearchValue(value);
+    
+    // If table has manual filtering enabled, only update the filter state
+    // The parent component will handle the actual filtering via onColumnFiltersChange
+    if (table.options.manualFiltering) {
+      if (searchColumnIds.length === 0) {
+        table.setGlobalFilter(value || undefined);
+      } else {
+        // For manual filtering with specific columns, set a special filter
+        table.setColumnFilters([{ id: 'search', value: value || undefined }]);
+      }
+      return;
+    }
 
+    // Original automatic filtering logic for non-manual tables
     if (searchColumnIds.length === 0) {
-      // If no specific columns provided, search in all string columns
-      const stringColumns = table.getAllColumns().filter(column =>
-        'accessorFn' in column.columnDef || 'accessorKey' in column.columnDef
-      );
-
-      table.setGlobalFilter(value);
-
-      // Also set individual column filters for searchable columns
-      stringColumns.forEach(column => {
-        column.setFilterValue(value || undefined);
-      });
+      table.setGlobalFilter(value || undefined);
     } else {
-      // Search only in specified columns
-      searchColumnIds.forEach(columnId => {
-        const column = table.getColumn(columnId);
-        if (column) {
-          column.setFilterValue(value || undefined);
-        }
-      });
+      table.setGlobalFilter(undefined);
+      table.resetColumnFilters();
+      
+      if (value) {
+        const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
+          return searchColumnIds.some(colId => {
+            const cellValue = row.getValue(colId);
+            if (cellValue == null) return false;
+            
+            return String(cellValue)
+              .toLowerCase()
+              .includes(filterValue.toLowerCase());
+          });
+        };
+        
+        table.options.globalFilterFn = globalFilterFn;
+        table.setGlobalFilter(value);
+      }
     }
   };
 
@@ -82,7 +96,7 @@ export function DataTableFilter<TData>({
               className="absolute right-0 top-0 h-8 w-8 pt-1 text-muted-foreground/50 hover:bg-transparent hover:text-muted-foreground"
               onClick={onReset}
             >
-              <X className="h-4 w-4" />
+              <CircleXIcon className="h-4 w-4" />
               <span className="sr-only">Clear search</span>
             </Button>
           )}

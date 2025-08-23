@@ -89,7 +89,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     onRowSelectionChange: setRowSelection,
     onPaginationChange: handlePaginationChange, // const next = typeof updater === "function" ? updater(table.getState().pagination) : updater;
     onSortingChange: handleSortingChange,
-    onColumnFiltersChange: handleColumnFiltersChange,
+    onColumnFiltersChange: handleColumnFiltersChange, // const nextFilters = typeof updater === "function" ? updater(table.getState().columnFilters) : updater;
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

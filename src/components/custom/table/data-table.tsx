@@ -15,6 +15,14 @@ import {cn} from "@/lib/utils";
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>;
   actionBar?: React.ReactNode;
+  showRowNumbers?: boolean; // Show/hide row numbers (default: true)
+  totalRowCount?: number; // Total row count for manual pagination (overrides table.getRowCount())
+  paginationData?: { // Optional pagination object for manual pagination
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
   pinned?: {
     withBorder?: boolean
   },
@@ -37,6 +45,9 @@ export function DataTable<TData>({
                                    children,
                                    className,
                                    pageSizeOptions,
+                                   showRowNumbers = true,
+                                   totalRowCount,
+                                   paginationData,
                                    pinned,
                                    styles,
                                    ...props
@@ -58,6 +69,14 @@ export function DataTable<TData>({
           <TableHeader className="w-full">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="">
+                {/* Row Number Header */}
+                {showRowNumbers && (
+                  <TableHead
+                    className={cn("bg-[#fafafa] dark:bg-[#28313e] py-1 px-2 border h-10 w-12 text-center", styles?.TableHead?.default)}
+                  >
+                    #
+                  </TableHead>
+                )}
                 {headerGroup.headers.map((header) => {
                     return (
                       <TableHead
@@ -95,12 +114,20 @@ export function DataTable<TData>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, index) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="w-full"
                 >
+                  {/* Row Number Cell */}
+                  {showRowNumbers && (
+                    <TableCell
+                      className={cn("bg-[#fafafa] dark:bg-[#28313e] border py-1 px-2 w-12 text-center font-medium text-sm", styles?.TableHead?.default)}
+                    >
+                      {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + index + 1}
+                    </TableCell>
+                  )}
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
@@ -123,7 +150,7 @@ export function DataTable<TData>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={table.getAllColumns().length}
+                  colSpan={table.getAllColumns().length + (showRowNumbers ? 1 : 0)}
                   className="h-24 text-center"
                 >
                   No results.
@@ -139,8 +166,9 @@ export function DataTable<TData>({
           setPageIndex={table.setPageIndex}
           pageSize={table.getState().pagination.pageSize}
           setPageSize={table.setPageSize}
-          rowsCount={table.getRowCount()}
+          rowsCount={totalRowCount ?? table.getRowCount()} // Use totalRowCount if provided for manual pagination
           pageSizeOptions={pageSizeOptions}
+          paginationData={paginationData} // Pass pagination object for manual pagination
         />
 
         {(actionBar && (rowLength > 0)) && actionBar}

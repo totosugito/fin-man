@@ -23,10 +23,17 @@ import {ObjToOptionList} from "@/lib/my-utils";
 import {EnumUserRole} from "backend/src/db/schema";
 
 export const Route = createFileRoute('/__authenticated/admin/__users/users')({
-  validateSearch: (search: Record<string, unknown>): { sort?: string; order?: 'asc' | 'desc' } => {
+  validateSearch: (search: Record<string, unknown>): { 
+    sort?: string; 
+    order?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+  } => {
     return {
       sort: search.sort as string | undefined,
       order: search.order as 'asc' | 'desc' | undefined,
+      page: search.page ? Number(search.page) : undefined,
+      limit: search.limit ? Number(search.limit) : undefined,
     }
   },
   component: RouteComponent,
@@ -35,9 +42,18 @@ export const Route = createFileRoute('/__authenticated/admin/__users/users')({
 function RouteComponent() {
   const {t} = useTranslation()
   const queryClient = useQueryClient();
-  const {sort, order} = Route.useSearch();
+  const {sort, order, page, limit} = Route.useSearch();
+  const navigate = Route.useNavigate();
+  
+  // Set default pagination values
+  const currentPagination = {
+    page: page || 1,
+    limit: limit || 5,
+    total: 0, // Will be set from API response
+    totalPages: 0 // Will be set from API response
+  };
 
-  const dataListQuery = useAdminUserList({sort, order});
+  const dataListQuery = useAdminUserList({sort, order, page: currentPagination.page, limit: currentPagination.limit});
   const dataCreateMutation = useAdminUserCreate();
   const dataPutMutation = useAdminUserPut();
   const dataDeleteMutation = useAdminUserDelete();
@@ -52,6 +68,18 @@ function RouteComponent() {
     return (dataDeleteMutation.isPending || dataCreateMutation.isPending || dataPutMutation.isPending || dataListQuery.isPending
     );
   }
+
+  // Handle pagination changes
+  const handlePaginationChange = (paginationData: { page: number; limit: number; total?: number; totalPages?: number }) => {
+    navigate({
+      search: {
+        sort,
+        order,
+        page: paginationData.page,
+        limit: paginationData.limit,
+      },
+    });
+  };
 
   const [formData, setFormData] = React.useState({
     form: {
@@ -133,7 +161,7 @@ function RouteComponent() {
           {body: {userId: item?.id}},
           {
             onSuccess: async () => {
-              await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order]});
+              await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order, currentPagination.page, currentPagination.limit]});
               showNotifSuccess({message: "User deleted successfully"});
             },
             onError: (error: any) => showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message}),
@@ -157,7 +185,7 @@ function RouteComponent() {
       onConfirmClick: (body: Record<string, any>) => {
         dataCreateMutation.mutate({body}, {
           onSuccess: async () => {
-            await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order]});
+            await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order, currentPagination.page, currentPagination.limit]});
             showNotifSuccess({message: "User created successfully"});
             setConfirmationCreate(null);
           },
@@ -185,7 +213,7 @@ function RouteComponent() {
       onConfirmClick: (body: Record<string, any>) => {
         dataPutMutation.mutate({id: item?.id, body: body}, {
           onSuccess: async () => {
-            await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order]});
+            await queryClient.invalidateQueries({queryKey: ['admin-user-list', sort, order, currentPagination.page, currentPagination.limit]});
             showNotifSuccess({message: "User updated successfully"});
             setConfirmationPut(null);
           },
@@ -262,6 +290,12 @@ function RouteComponent() {
                          onPasswordChange={onPasswordChange}
                          loading={isLoading()}
                          toolbarContent={<ViewAddUser/>}
+                         onPaginationChange={handlePaginationChange}
+                         paginationData={{
+                           ...currentPagination,
+                           total: dataListQuery?.data?.meta?.total || 0,
+                           totalPages: dataListQuery?.data?.meta?.totalPages || 0,
+                         }}
           />
         </div>
       }
