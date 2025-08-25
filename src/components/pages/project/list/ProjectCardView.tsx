@@ -91,11 +91,11 @@ const ProjectCostSummary: React.FC<{ cost: any }> = ({ cost }) => {
                   </span>
                 </>
               )}
-              {!hasActual && (
+              {/* {!hasActual && (
                 <span className={cn("font-medium", getStatusColor())}>
                   {formatAmount(budgetNet)}
                 </span>
-              )}
+              )} */}
             </div>
           </div>
         );
