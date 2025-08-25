@@ -21,16 +21,101 @@ import type {ColumnDef} from "@tanstack/react-table";
 import {Text} from "lucide-react";
 import {getProjectStatusStyle} from "@/lib/app-utils";
 import {getDaysFromCurrentDate} from "@/lib/my-utils";
+import { cn } from "@/lib/utils";
 
 type Project = {
   id: string;
   name: string;
   description: string;
   status: string;
+  cost?: any;
   createdAt: string;
   updatedAt: string;
   deleted_at: string;
 }
+
+// Compact cost display for table rows
+const TableCostDisplay: React.FC<{ cost: any }> = ({ cost }) => {
+  // Debug: log cost structure to understand the data format
+  if (cost && Object.keys(cost).length > 0) {
+    console.log('Table cost data:', cost);
+  }
+  
+  if (!cost || typeof cost !== 'object' || Object.keys(cost).length === 0) {
+    return <div className="text-xs text-muted-foreground">No data</div>;
+  }
+
+  const formatAmount = (amount: string | number) => {
+    const num = parseFloat(String(amount));
+    if (isNaN(num) || num === 0) return '0';
+    if (Math.abs(num) >= 1000000) return `${(num/1000000).toFixed(1)}M`;
+    if (Math.abs(num) >= 1000) return `${(num/1000).toFixed(1)}K`;
+    return num.toFixed(0);
+  };
+
+  const getCurrencyData = () => {
+    return Object.entries(cost).map(([currency, transactionTypes]: [string, any]) => {
+      const income = transactionTypes?.income || { budget: '0', actual: '0' };
+      const expense = transactionTypes?.expense || { budget: '0', actual: '0' };
+      
+      const budgetNet = parseFloat(income.budget || '0') - parseFloat(expense.budget || '0');
+      const actualNet = parseFloat(income.actual || '0') - parseFloat(expense.actual || '0');
+      const variance = actualNet - budgetNet;
+      
+      return {
+        currency,
+        budgetNet,
+        actualNet,
+        variance,
+        hasActual: actualNet !== 0
+      };
+    }).filter(item => item.budgetNet !== 0 || item.actualNet !== 0);
+  };
+
+  const currencyData = getCurrencyData();
+  
+  if (currencyData.length === 0) {
+    return <div className="text-xs text-muted-foreground">No data</div>;
+  }
+
+  // Show only the first currency for table view to keep it compact
+  const firstCurrency = currencyData[0];
+  const { currency, budgetNet, actualNet, variance, hasActual } = firstCurrency;
+  
+  const getStatusColor = () => {
+    if (!hasActual) return budgetNet >= 0 ? 'text-green-600' : 'text-red-600';
+    if (variance >= 0) return 'text-green-600';
+    if (Math.abs(variance) / Math.abs(budgetNet) <= 0.1) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  return (
+    <div className="text-xs">
+      <div className="flex items-center gap-1">
+        <span className="font-mono text-muted-foreground">{currency}</span>
+        <span className="text-muted-foreground">{formatAmount(budgetNet)}</span>
+        {hasActual && (
+          <>
+            <span className="text-muted-foreground">→</span>
+            <span className={cn("font-medium", getStatusColor())}>
+              {formatAmount(actualNet)}
+            </span>
+          </>
+        )}
+        {!hasActual && (
+          <span className={cn("font-medium", getStatusColor())}>
+            {formatAmount(budgetNet)}
+          </span>
+        )}
+      </div>
+      {currencyData.length > 1 && (
+        <div className="text-muted-foreground mt-0.5">
+          +{currencyData.length - 1} more
+        </div>
+      )}
+    </div>
+  );
+};
 
 type Props = {
   data: Record<string, any>;
@@ -83,6 +168,17 @@ export const DataTableView = ({
         placeholder: "Search project name...",
         variant: "text",
         icon: Text,
+      },
+    },
+    {
+      accessorKey: "cost",
+      size: 120,
+      enableSorting: false,
+      header: ({column}) => {
+        return (<DataTableColumnHeader column={column} title={"Cost Summary"} className={"justify-center"}/>) 
+      },
+      cell: ({row}) => {
+        return <TableCostDisplay cost={row.original?.cost} />;
       },
     },
     {

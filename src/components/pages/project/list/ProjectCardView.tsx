@@ -8,6 +8,7 @@ import { IoEllipsisVertical } from "react-icons/io5";
 import { getProjectStatusStyle } from "@/lib/app-utils";
 import { getDaysFromCurrentDate } from "@/lib/my-utils";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 type ProjectCardViewProps = {
   data: any[];
@@ -16,6 +17,96 @@ type ProjectCardViewProps = {
   onDeleteClicked: (item: any) => void;
   onShowDetail: (id: string) => void;
   t?: (key: string) => string;
+};
+
+// Cost display component for project cards
+const ProjectCostSummary: React.FC<{ cost: any }> = ({ cost }) => { 
+  if (!cost || typeof cost !== 'object' || Object.keys(cost).length === 0) {
+    return (
+      <div className="text-xs text-muted-foreground">
+        No cost data
+      </div>
+    );
+  }
+
+  const formatAmount = (amount: string | number) => {
+    const num = parseFloat(String(amount));
+    if (isNaN(num) || num === 0) return '0';
+    // if (Math.abs(num) >= 1000000) return `${(num/1000000).toFixed(1)}M`;
+    // if (Math.abs(num) >= 1000) return `${(num/1000).toFixed(1)}K`;
+    return num.toFixed(0);
+  };
+
+  const getCurrencyData = () => {
+    return Object.entries(cost).map(([currency, transactionTypes]: [string, any]) => {
+      const income = transactionTypes?.income || { budget: '0', actual: '0' };
+      const expense = transactionTypes?.expense || { budget: '0', actual: '0' };
+      
+      const budgetNet = parseFloat(income.budget || '0') - parseFloat(expense.budget || '0');
+      const actualNet = parseFloat(income.actual || '0') - parseFloat(expense.actual || '0');
+      const variance = actualNet - budgetNet;
+      
+      return {
+        currency,
+        budgetNet,
+        actualNet,
+        variance,
+        hasActual: actualNet !== 0
+      };
+    }).filter(item => item.budgetNet !== 0 || item.actualNet !== 0);
+  };
+
+  const currencyData = getCurrencyData();
+  
+  if (currencyData.length === 0) {
+    return (
+      <div className="text-xs text-muted-foreground">
+        No cost data
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      {currencyData.slice(0, 2).map(({ currency, budgetNet, actualNet, variance, hasActual }) => {
+        const getStatusColor = () => {
+          if (!hasActual) return budgetNet >= 0 ? 'text-green-600' : 'text-red-600';
+          if (variance >= 0) return 'text-green-600';
+          if (Math.abs(variance) / Math.abs(budgetNet) <= 0.1) return 'text-yellow-600';
+          return 'text-red-600';
+        };
+
+        return (
+          <div key={currency} className="flex items-center justify-between text-xs">
+            <span className="font-mono text-muted-foreground">{currency}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground">
+                {formatAmount(budgetNet)}
+              </span>
+              {hasActual && (
+                <>
+                  <span className="text-muted-foreground">→</span>
+                  <span className={cn("font-medium", getStatusColor())}>
+                    {formatAmount(actualNet)}
+                  </span>
+                </>
+              )}
+              {!hasActual && (
+                <span className={cn("font-medium", getStatusColor())}>
+                  {formatAmount(budgetNet)}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {currencyData.length > 2 && (
+        <div className="text-xs text-muted-foreground text-center">
+          +{currencyData.length - 2} more currencies
+        </div>
+      )}
+    </div>
+  );
 };
 
 export const ProjectCardView: React.FC<ProjectCardViewProps> = ({
@@ -104,6 +195,13 @@ export const ProjectCardView: React.FC<ProjectCardViewProps> = ({
                   {item.type}
                 </Badge>
               </div>
+              
+              {/* Cost Summary */}
+              <div className="border-t pt-2">
+                <div className="text-xs font-medium text-muted-foreground mb-1">Cost Summary</div>
+                <ProjectCostSummary cost={item.cost} />
+              </div>
+              
               {item.updatedAt && (
                 <div className="text-xs text-muted-foreground">
                   {t('labels.lastUpdated')}: {getDaysFromCurrentDate(t, item.updatedAt)?.value}

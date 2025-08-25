@@ -33,7 +33,6 @@ export const TableEventDetail = ({
   const iconSize = 18;
   const styleFolder = "text-blue-500";
   const [maxDepth, setMaxDepth] = useState(1);
-  const [viewMode, setViewMode] = useState<'inline' | 'summary' | 'progress' | 'compact' | 'detailed'>('inline');
 
   useEffect(() => {
     setMaxDepth(data?.maxDepth || 1);
@@ -121,10 +120,7 @@ export const TableEventDetail = ({
             field={"budget"}
             settings={{ 
               showEmptyCost: false, 
-              useSummaryView: viewMode === 'summary', 
-              useCompactView: viewMode === 'compact',
-              useProgressView: viewMode === 'progress',
-              useInlineView: viewMode === 'inline'
+              useInlineView: true
             }}
           />)
         }
@@ -144,10 +140,7 @@ export const TableEventDetail = ({
             field={"real"}
             settings={{ 
               showEmptyCost: false, 
-              useSummaryView: viewMode === 'summary', 
-              useCompactView: viewMode === 'compact',
-              useProgressView: viewMode === 'progress',
-              useInlineView: viewMode === 'inline'
+              useInlineView: true
             }}
           />)
         }
@@ -176,17 +169,6 @@ export const TableEventDetail = ({
     <div className={"bg-card p-2 flex flex-col gap-2"}>
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-sm font-medium">Project Events</h3>
-        <button
-          onClick={() => {
-            const modes: Array<'inline' | 'summary' | 'progress' | 'compact' | 'detailed'> = ['inline', 'summary', 'progress', 'compact', 'detailed'];
-            const currentIndex = modes.indexOf(viewMode);
-            const nextIndex = (currentIndex + 1) % modes.length;
-            setViewMode(modes[nextIndex]);
-          }}
-          className="text-xs px-3 py-1 rounded bg-muted hover:bg-muted/80 transition-colors capitalize"
-        >
-          {viewMode} View
-        </button>
       </div>
       <DataTable table={table} pageSizeOptions={[5, 10, 20]}>
       </DataTable>
