@@ -12,10 +12,11 @@ import {DialogModal, DialogModalForm} from '@/components/custom/components';
 import {ModalFormProps, ModalProps} from '@/types/dialog';
 import {z} from 'zod';
 import {EnumProjectEventType} from 'backend/src/db/schema';
-import {ObjToOptionListValue} from '@/lib/my-utils';
+import {ObjToOptionListValue, ObjToOptionList, string_to_date, date_to_string} from '@/lib/my-utils';
 import {CurrencyList} from '@/constants/app-enum';
 import {PageTitle} from '@/components/app';
 import {useEffect, useState} from "react";
+import {EnumTransactionType} from "backend/src/db/schema/index";
 
 export const Route = createFileRoute('/__authenticated/project/$id')({
   component: RouteComponent,
@@ -80,78 +81,69 @@ function RouteComponent() {
         label: "Description",
         placeholder: "",
       },
-      budgetIncomeCurrency: {
+      transactionType: {
         type: "select",
-        name: "budgetIncomeCurrency",
-        label: "",
+        name: "transactionType",
+        label: "Transaction Type",
+        options: ObjToOptionList(EnumTransactionType),
+      },
+      budgetCurrency: {
+        type: "select",
+        name: "budgetCurrency",
+        label: "Budget Currency",
         options: optionsCurrency,
       },
-      budgetIncome: {
+      budget: {
         type: "number",
-        name: "budgetIncome",
-        label: "Budget Income",
+        name: "budget",
+        label: "Budget Amount",
         placeholder: "",
       },
-      budgetExpenseCurrency: {
-        type: "select",
-        name: "budgetExpenseCurrency",
-        label: "",
-        options: optionsCurrency,
+      hasActual: {
+        type: "checkbox",
+        name: "hasActual",
+        label: "Has Actual Data",
       },
-      budgetExpense: {
-        type: "number",
-        name: "budgetExpense",
-        label: "Budget Expense",
+      actualCreatedAt: {
+        type: "date",
+        name: "actualCreatedAt",
+        label: "Actual Created At",
         placeholder: "",
       },
-      realIncomeCurrency: {
+      actualCurrency: {
         type: "select",
-        name: "realIncomeCurrency",
-        label: "",
+        name: "actualCurrency",
+        label: "Actual Currency",
         options: optionsCurrency,
       },
-      realIncome: {
+      actual: {
         type: "number",
-        name: "realIncome",
-        label: "Real Income",
-        placeholder: "",
-      },
-      realExpenseCurrency: {
-        type: "select",
-        name: "realExpenseCurrency",
-        label: "",
-        options: optionsCurrency,
-      },
-      realExpense: {
-        type: "number",
-        name: "realExpense",
-        label: "Real Expense",
+        name: "actual",
+        label: "Actual Amount",
         placeholder: "",
       },
     },
     schema: {
       name: z.string().min(1, "Name is required"),
       description: z.string().optional(),
-      budgetIncomeCurrency: z.string().min(1, "Budget Income Currency is required"),
-      budgetIncome: z.number().min(0, "Budget Income is required"),
-      budgetExpenseCurrency: z.string().min(1, "Budget Income Currency is required"),
-      budgetExpense: z.number().min(0, "Budget Income is required"),
-      realIncomeCurrency: z.string().min(1, "Real Income Currency is required"),
-      realIncome: z.number().min(0, "Real Income is required"),
-      realExpenseCurrency: z.string().min(1, "Real Income Currency is required"),
-      realExpense: z.number().min(0, "Real Income is required"),
+      transactionType: z.enum(["income", "expense"]),
+      budgetCurrency: z.string().min(1, "Budget Currency is required"),
+      budget: z.number().min(0, "Budget amount must be positive"),
+      actualCurrency: z.string().min(1, "Actual Currency is required"),
+      actual: z.number().min(0, "Actual amount must be positive"),
+      hasActual: z.boolean().optional(),
+      actualCreatedAt: z.date().optional(),
     },
     defaultValue: {
       name: "",
       description: "",
-      budgetIncomeCurrency: CurrencyList.IDR.value,
-      budgetIncome: 0,
-      budgetExpenseCurrency: CurrencyList.IDR.value,
-      budgetExpense: 0,
-      realIncomeCurrency: CurrencyList.IDR.value,
-      realIncome: 0,
-      realExpenseCurrency: CurrencyList.IDR.value,
-      realExpense: 0,
+      transactionType: "expense" as const,
+      budgetCurrency: CurrencyList.IDR.value,
+      budget: 0,
+      actualCurrency: CurrencyList.IDR.value,
+      actual: 0,
+      hasActual: false,
+      actualCreatedAt: new Date(),
     }
   };
 
@@ -214,14 +206,13 @@ function RouteComponent() {
           description: body?.description ?? "",
           sortOrder: 0,
           eventCost: {
-            budgetIncomeCurrency: body?.budgetIncomeCurrency ?? CurrencyList.IDR.value,
-            budgetIncome: String(body?.budgetIncome) ?? "0",
-            budgetExpenseCurrency: body?.budgetExpenseCurrency ?? CurrencyList.IDR.value,
-            budgetExpense: String(body?.budgetExpense) ?? "0",
-            realIncomeCurrency: body?.realIncomeCurrency ?? CurrencyList.IDR.value,
-            realIncome: String(body?.realIncome) ?? "0",
-            realExpenseCurrency: body?.realExpenseCurrency ?? CurrencyList.IDR.value,
-            realExpense: String(body?.realExpense) ?? "0",
+            transactionType: body?.transactionType ?? "expense",
+            budgetCurrency: body?.budgetCurrency ?? CurrencyList.IDR.value,
+            budget: String(body?.budget) ?? "0",
+            actualCurrency: body?.actualCurrency ?? CurrencyList.IDR.value,
+            actual: String(body?.actual) ?? "0",
+            hasActual: body?.hasActual ?? false,
+            actualCreatedAt: date_to_string(body?.actualCreatedAt ?? new Date()),
           }
         }
         dataCreateMutation.mutate({body: newBody}, {
@@ -243,19 +234,25 @@ function RouteComponent() {
     const child = isFolder ? formProject.form : formProjectEvent.form;
     const schema = isFolder ? formProject.schema : formProjectEvent.schema;
     const formHtml = isFolder ? <FormProject/> : <FormProjectEvent/>;
-    const defaultValue = isFolder ? item :
-      {
+    
+    let defaultValue;
+    if (isFolder) {
+      defaultValue = item;
+    } else {
+      // For files, extract data from the new cost structure
+      defaultValue = {
         ...item,
         eventType: item?.eventType,
-        budgetIncomeCurrency: item?.cost?.budgetIncomeCurrency ?? CurrencyList.IDR.value,
-        budgetIncome: Number(item?.cost?.budgetIncome) ?? 0,
-        budgetExpenseCurrency: item?.cost?.budgetExpenseCurrency ?? CurrencyList.IDR.value,
-        budgetExpense: Number(item?.cost?.budgetExpense) ?? 0,
-        realIncomeCurrency: item?.cost?.realIncomeCurrency ?? CurrencyList.IDR.value,
-        realIncome: Number(item?.cost?.realIncome) ?? 0,
-        realExpenseCurrency: item?.cost?.realExpenseCurrency ?? CurrencyList.IDR.value,
-        realExpense: Number(item?.cost?.realExpense) ?? 0
+        transactionType: item?.cost?.transactionType ?? "expense",
+        budgetCurrency: item?.cost?.budgetCurrency ?? CurrencyList.IDR.value,
+        budget: Number(item?.cost?.budget) ?? 0,
+        actualCurrency: item?.cost?.actualCurrency ?? CurrencyList.IDR.value,
+        actual: Number(item?.cost?.actual) ?? 0,
+        hasActual: item?.cost?.hasActual ?? false,
+        actualCreatedAt: string_to_date(item?.cost?.actualCreatedAt) ?? new Date(),
       };
+    }
+    
     setConfirmationPut({
       title: "Update Project Event",
       desc: "Please fill the form below to update project event.",
@@ -272,14 +269,13 @@ function RouteComponent() {
             description: body?.description ?? "",
             eventType: body?.eventType,
             eventCost: {
-              budgetIncomeCurrency: body?.budgetIncomeCurrency ?? CurrencyList.IDR.value,
-              budgetIncome: String(body?.budgetIncome) ?? "0",
-              budgetExpenseCurrency: body?.budgetExpenseCurrency ?? CurrencyList.IDR.value,
-              budgetExpense: String(body?.budgetExpense) ?? "0",
-              realIncomeCurrency: body?.realIncomeCurrency ?? CurrencyList.IDR.value,
-              realIncome: String(body?.realIncome) ?? "0",
-              realExpenseCurrency: body?.realExpenseCurrency ?? CurrencyList.IDR.value,
-              realExpense: String(body?.realExpense) ?? "0",
+              transactionType: body?.transactionType ?? "expense",
+              budgetCurrency: body?.budgetCurrency ?? CurrencyList.IDR.value,
+              budget: String(body?.budget) ?? "0",
+              actualCurrency: body?.actualCurrency ?? CurrencyList.IDR.value,
+              actual: String(body?.actual) ?? "0",
+              hasActual: body?.hasActual ?? false,
+              actualCreatedAt: date_to_string(body?.actualCreatedAt ?? new Date()),
             },
           };
         dataPutMutation.mutate({id: item?.id, body: newBody}, {
@@ -336,17 +332,17 @@ function RouteComponent() {
       {(!isLoading() && data) &&
         <div className={"p-2 flex flex-col gap-2"}>
           <div className={"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4"}>
-            {data?.events?.[0]?.cost && Object.entries(data.events[0].cost).map(([currency, values]: any) => (
+            {data?.events?.[0]?.cost && Object.entries(data.events[0].cost).map(([currency, transactionTypes]: any) => (
               <CurrencyCard
                 key={currency}
                 currency={currency}
                 isExpanded={isExpanded}
                 onToggleExpand={toggleExpand}
                 values={{
-                  budgetIncome: values.budgetIncome,
-                  budgetExpense: values.budgetExpense,
-                  realIncome: values.realIncome,
-                  realExpense: values.realExpense
+                  budgetIncome: transactionTypes?.income?.budget || "0",
+                  budgetExpense: transactionTypes?.expense?.budget || "0",
+                  actualIncome: transactionTypes?.income?.actual || "0",
+                  actualExpense: transactionTypes?.expense?.actual || "0"
                 }}
               />
             ))}

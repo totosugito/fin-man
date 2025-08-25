@@ -1,14 +1,12 @@
 import {Type} from "@sinclair/typebox";
+import {EnumTransactionType} from "../db/schema/enum-projects.ts";
 
 export const eventCost = Type.Optional(Type.Object({
-  budgetIncomeCurrency: Type.Optional(Type.String({maxLength: 3})),
-  budgetIncome: Type.Optional(Type.String()),
-  budgetExpenseCurrency: Type.Optional(Type.String({maxLength: 3})),
-  budgetExpense: Type.Optional(Type.String()),
-  realIncomeCreatedAt: Type.Optional(Type.String({format: 'date'})),
-  realIncomeCurrency: Type.Optional(Type.String({maxLength: 3})),
-  realIncome: Type.Optional(Type.String()),
-  realExpenseCreatedAt: Type.Optional(Type.String({format: 'date'})),
-  realExpenseCurrency: Type.Optional(Type.String({maxLength: 3})),
-  realExpense: Type.Optional(Type.String()),
+  transactionType: Type.Optional(Type.Enum(EnumTransactionType)),
+  budgetCurrency: Type.Optional(Type.String({maxLength: 3})),
+  budget: Type.Optional(Type.String()),
+  actualCurrency: Type.Optional(Type.String({maxLength: 3})),
+  actual: Type.Optional(Type.String()),
+  hasActual: Type.Optional(Type.Boolean()),
+  actualCreatedAt: Type.Optional(Type.String({format: 'date'})),
 }))

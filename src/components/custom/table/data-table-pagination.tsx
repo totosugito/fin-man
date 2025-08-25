@@ -157,7 +157,7 @@ export function DataTablePagination({
                 handlePageSizeChange(Number(value));
               }}
             >
-              <SelectTrigger className="h-8 w-[8.0rem] [&[data-size]]:h-8">
+              <SelectTrigger className="w-[8.0rem]">
                 <SelectValue placeholder={currentPageSize}/>
               </SelectTrigger>
               <SelectContent side="top">

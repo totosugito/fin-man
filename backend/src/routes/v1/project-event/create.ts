@@ -3,7 +3,7 @@ import {withErrorHandler} from "../../../utils/withErrorHandler.ts";
 import {db} from "../../../db/index.ts";
 import {sql} from 'drizzle-orm';
 import {type Static, Type} from '@sinclair/typebox';
-import {projectEvents, projects, EnumProjectEventType, projectsCost} from "../../../db/schema/index.ts";
+import {projectEvents, projects, EnumProjectEventType, EnumTransactionType, projectsCost} from "../../../db/schema/index.ts";
 import {and, eq} from 'drizzle-orm';
 import {randomUUID} from "node:crypto";
 import {computeParentCost} from "../../../services/project-event/update-cost.ts";
@@ -133,16 +133,13 @@ const projectEventRoutes: FastifyPluginAsyncTypebox = async (app) => {
       else {
         const result = await db.insert(projectsCost).values({
           projectEventId: newEvent.id,
-          budgetIncomeCurrency: eventCost?.budgetIncomeCurrency || 'IDR',
-          budgetIncome: eventCost?.budgetIncome || '0',
-          budgetExpenseCurrency: eventCost?.budgetExpenseCurrency || 'IDR',
-          budgetExpense: eventCost?.budgetExpense || '0',
-          realIncomeCurrency: eventCost?.realIncomeCurrency || 'IDR',
-          realIncome: eventCost?.realIncome || '0',
-          realIncomeCreatedAt: eventCost?.realIncomeCreatedAt ? new Date(eventCost.realIncomeCreatedAt) : new Date(),
-          realExpenseCurrency: eventCost?.realExpenseCurrency || 'IDR',
-          realExpense: eventCost?.realExpense || '0',
-          realExpenseCreatedAt: eventCost?.realExpenseCreatedAt ? new Date(eventCost.realExpenseCreatedAt) : new Date(),
+          transactionType: eventCost?.transactionType || EnumTransactionType.expense,
+          budgetCurrency: eventCost?.budgetCurrency || 'IDR',
+          budget: eventCost?.budget || '0',
+          actualCurrency: eventCost?.actualCurrency || 'IDR',
+          actual: eventCost?.actual || '0',
+          hasActual: eventCost?.hasActual || false,
+          actualCreatedAt: eventCost?.actualCreatedAt ? new Date(eventCost.actualCreatedAt) : null,
         }).returning();
 
         if (!result || result.length === 0) {

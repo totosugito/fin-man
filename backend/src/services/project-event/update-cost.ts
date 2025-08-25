@@ -1,14 +1,15 @@
 import { and, eq, sql } from "drizzle-orm";
-import { projectsCost, projectEvents, EnumProjectEventType } from "../../db/schema/index.ts";
+import { projectsCost, projectEvents, EnumProjectEventType, EnumTransactionType } from "../../db/schema/index.ts";
 import { db } from "../../db/index.ts";
 import * as schema from "../../db/schema/index.ts";
 import {NodePgDatabase} from "drizzle-orm/node-postgres";
-interface CurrencySummary {
+
+interface TransactionTypeSummary {
   [currency: string]: {
-    budgetIncome: string;
-    budgetExpense: string;
-    realIncome: string;
-    realExpense: string;
+    [transactionType: string]: {
+      budget: string;
+      actual: string;
+    };
   };
 }
 
@@ -61,12 +62,13 @@ export const computeEventCost = async (
 
   const isFolder = parentEvent.eventType === EnumProjectEventType.folder;
 
-  // Get all budget entries grouped by their respective currencies
-  const budgetGroups = await tx
+  // Get all cost entries grouped by currency and transaction type
+  const costGroups = await tx
     .select({
-      currency: projectsCost.budgetIncomeCurrency,
-      budgetIncome: sql<number>`COALESCE(SUM(CAST(${projectsCost.budgetIncome} AS NUMERIC)), 0)`,
-      budgetExpense: sql<number>`COALESCE(SUM(CAST(${projectsCost.budgetExpense} AS NUMERIC)), 0)`,
+      currency: projectsCost.budgetCurrency,
+      transactionType: projectsCost.transactionType,
+      budget: sql<number>`COALESCE(SUM(CAST(${projectsCost.budget} AS NUMERIC)), 0)`,
+      actual: sql<number>`COALESCE(SUM(CASE WHEN ${projectsCost.hasActual} = true THEN CAST(${projectsCost.actual} AS NUMERIC) ELSE 0 END), 0)`,
     })
     .from(projectsCost)
     .innerJoin(projectEvents, eq(projectEvents.id, projectsCost.projectEventId))
@@ -76,97 +78,50 @@ export const computeEventCost = async (
           ? sql`${projectEvents.path} <@ ${parentEvent.path} AND ${projectEvents.path} != ${parentEvent.path}`
           : eq(projectEvents.parentId, parentId),
         eq(projectEvents.eventType, EnumProjectEventType.file),
-        sql`${projectsCost.budgetIncomeCurrency} IS NOT NULL`,
-        sql`${projectsCost.budgetIncomeCurrency} != ''`
+        sql`${projectsCost.budgetCurrency} IS NOT NULL`,
+        sql`${projectsCost.budgetCurrency} != ''`
       )
     )
-    .groupBy(projectsCost.budgetIncomeCurrency);
+    .groupBy(projectsCost.budgetCurrency, projectsCost.transactionType);
 
-  // Get all real income entries grouped by their currencies
-  const realIncomeGroups = await tx
-    .select({
-      currency: projectsCost.realIncomeCurrency,
-      amount: sql<number>`COALESCE(SUM(CAST(${projectsCost.realIncome} AS NUMERIC)), 0)`,
-    })
-    .from(projectsCost)
-    .innerJoin(projectEvents, eq(projectEvents.id, projectsCost.projectEventId))
-    .where(
-      and(
-        isFolder
-          ? sql`${projectEvents.path} <@ ${parentEvent.path} AND ${projectEvents.path} != ${parentEvent.path}`
-          : eq(projectEvents.parentId, parentId),
-        eq(projectEvents.eventType, EnumProjectEventType.file),
-        sql`${projectsCost.realIncomeCurrency} IS NOT NULL`,
-        sql`${projectsCost.realIncomeCurrency} != ''`
-      )
-    )
-    .groupBy(projectsCost.realIncomeCurrency);
+  const eventSummary: TransactionTypeSummary = {};
 
-  // Get all real expense entries grouped by their currencies
-  const realExpenseGroups = await tx
-    .select({
-      currency: projectsCost.realExpenseCurrency,
-      amount: sql<number>`COALESCE(SUM(CAST(${projectsCost.realExpense} AS NUMERIC)), 0)`,
-    })
-    .from(projectsCost)
-    .innerJoin(projectEvents, eq(projectEvents.id, projectsCost.projectEventId))
-    .where(
-      and(
-        isFolder
-          ? sql`${projectEvents.path} <@ ${parentEvent.path} AND ${projectEvents.path} != ${parentEvent.path}`
-          : eq(projectEvents.parentId, parentId),
-        eq(projectEvents.eventType, EnumProjectEventType.file),
-        sql`${projectsCost.realExpenseCurrency} IS NOT NULL`,
-        sql`${projectsCost.realExpenseCurrency} != ''`
-      )
-    )
-    .groupBy(projectsCost.realExpenseCurrency);
+  // Process cost groups
+  for (const group of costGroups) {
+    if (group.currency && group.transactionType) {
+      if (!eventSummary[group.currency]) {
+        eventSummary[group.currency] = {};
+      }
+      
+      eventSummary[group.currency][group.transactionType] = {
+        budget: group.budget.toString(),
+        actual: group.actual.toString()
+      };
+    }
+  }
 
-  const eventSummary: CurrencySummary = {};
-
-  // Initialize all currencies with empty strings
-  const allCurrencies = new Set<string>();
+  // Ensure both income and expense are present for each currency
+  // Get all unique currencies from the cost groups
+  const currencies = [...new Set(costGroups.map(g => g.currency).filter((c): c is string => Boolean(c)))];
   
-  // Process budget groups
-  for (const group of budgetGroups) {
-    if (group.currency) {
-      allCurrencies.add(group.currency);
-      eventSummary[group.currency] = eventSummary[group.currency] || {
-        budgetIncome: '',
-        budgetExpense: '',
-        realIncome: '',
-        realExpense: ''
-      };
-      eventSummary[group.currency].budgetIncome = group.budgetIncome.toString();
-      eventSummary[group.currency].budgetExpense = group.budgetExpense.toString();
+  for (const currency of currencies) {
+    if (!eventSummary[currency]) {
+      eventSummary[currency] = {};
     }
-  }
-
-  // Process real income groups
-  for (const group of realIncomeGroups) {
-    if (group.currency) {
-      allCurrencies.add(group.currency);
-      eventSummary[group.currency] = eventSummary[group.currency] || {
-        budgetIncome: '',
-        budgetExpense: '',
-        realIncome: '',
-        realExpense: ''
+    
+    // Ensure both income and expense exist for this currency
+    if (!eventSummary[currency][EnumTransactionType.income]) {
+      eventSummary[currency][EnumTransactionType.income] = {
+        budget: "0",
+        actual: "0"
       };
-      eventSummary[group.currency].realIncome = group.amount.toString();
     }
-  }
-
-  // Process real expense groups
-  for (const group of realExpenseGroups) {
-    if (group.currency) {
-      allCurrencies.add(group.currency);
-      eventSummary[group.currency] = eventSummary[group.currency] || {
-        budgetIncome: '',
-        budgetExpense: '',
-        realIncome: '',
-        realExpense: ''
+    
+    if (!eventSummary[currency][EnumTransactionType.expense]) {
+      eventSummary[currency][EnumTransactionType.expense] = {
+        budget: "0",
+        actual: "0"
       };
-      eventSummary[group.currency].realExpense = group.amount.toString();
     }
   }
 

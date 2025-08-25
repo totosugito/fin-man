@@ -9,8 +9,8 @@ interface CurrencyCardProps {
   values: {
     budgetIncome?: string;
     budgetExpense?: string;
-    realIncome?: string;
-    realExpense?: string;
+    actualIncome?: string;
+    actualExpense?: string;
   };
 }
 
@@ -41,23 +41,23 @@ export const CurrencyCard = React.memo(({ currency, isExpanded, onToggleExpand, 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Income</span>
-              <span className="font-medium text-green-600 dark:text-green-500">{values.realIncome || '0.00'}</span>
+              <span className="font-medium text-green-600 dark:text-green-500">{values.actualIncome || '0.00'}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Expense</span>
-              <span className="font-medium text-red-600 dark:text-red-500">{values.realExpense || '0.00'}</span>
+              <span className="font-medium text-red-600 dark:text-red-500">{values.actualExpense || '0.00'}</span>
             </div>
             <div className="pt-2 mt-2 border-t border-border">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Balance</span>
                 <span className={
                   `text-sm font-semibold ${
-                    (parseFloat(values.realIncome || '0') - parseFloat(values.realExpense || '0')) >= 0 
+                    (parseFloat(values.actualIncome || '0') - parseFloat(values.actualExpense || '0')) >= 0 
                       ? 'text-green-600' 
                       : 'text-red-600'
                   }`
                 }>
-                  {(parseFloat(values.realIncome || '0') - parseFloat(values.realExpense || '0')).toFixed(2)}
+                  {(parseFloat(values.actualIncome || '0') - parseFloat(values.actualExpense || '0')).toFixed(2)}
                 </span>
               </div>
             </div>
@@ -103,14 +103,14 @@ export const CurrencyCard = React.memo(({ currency, isExpanded, onToggleExpand, 
                   <span className="text-sm">Budget vs Actual</span>
                   <span className={
                     `text-sm font-medium ${
-                      (parseFloat(values.realIncome || '0') - parseFloat(values.realExpense || '0')) >= 
+                      (parseFloat(values.actualIncome || '0') - parseFloat(values.actualExpense || '0')) >= 
                       (parseFloat(values.budgetIncome || '0') - parseFloat(values.budgetExpense || '0'))
                         ? 'text-green-600'
                         : 'text-red-600'
                     }`
                   }>
                     {(
-                      (parseFloat(values.realIncome || '0') - parseFloat(values.realExpense || '0')) -
+                      (parseFloat(values.actualIncome || '0') - parseFloat(values.actualExpense || '0')) -
                       (parseFloat(values.budgetIncome || '0') - parseFloat(values.budgetExpense || '0'))
                     ).toFixed(2)}
                   </span>

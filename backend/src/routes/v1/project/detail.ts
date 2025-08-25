@@ -10,25 +10,28 @@ import {
 } from "../../../db/schema/index.ts";
 
 // Schema definitions
-const CurrencySummary = Type.Object({
-  budgetIncome: Type.String(),
-  budgetExpense: Type.String(),
-  realIncome: Type.String(),
-  realExpense: Type.String(),
+const TransactionTypeSummary = Type.Object({
+  budget: Type.String(),
+  actual: Type.String(),
 });
+
+const CurrencySummary = Type.Record(
+  Type.String(), // currency
+  Type.Record(
+    Type.String(), // transaction type
+    TransactionTypeSummary
+  )
+);
 
 const EventCost = Type.Object({
   projectEventId: Type.String({ format: 'uuid' }),
-  budgetIncomeCurrency: Type.Optional(Type.String({ minLength: 3, maxLength: 3 })),
-  budgetIncome: Type.Optional(Type.String()),
-  budgetExpenseCurrency: Type.Optional(Type.String({ minLength: 3, maxLength: 3 })),
-  budgetExpense: Type.Optional(Type.String()),
-  realIncomeCurrency: Type.Optional(Type.String({ minLength: 3, maxLength: 3 })),
-  realIncome: Type.Optional(Type.String()),
-  realIncomeCreatedAt: Type.Optional(Type.String({ format: 'date-time' })),
-  realExpenseCurrency: Type.Optional(Type.String({ minLength: 3, maxLength: 3 })),
-  realExpense: Type.Optional(Type.String()),
-  realExpenseCreatedAt: Type.Optional(Type.String({ format: 'date-time' })),
+  transactionType: Type.Union([Type.Literal('income'), Type.Literal('expense')]),
+  budgetCurrency: Type.Optional(Type.String({ minLength: 3, maxLength: 3 })),
+  budget: Type.Optional(Type.String()),
+  actualCurrency: Type.Optional(Type.String({ minLength: 3, maxLength: 3 })),
+  actual: Type.Optional(Type.String()),
+  hasActual: Type.Optional(Type.Boolean()),
+  actualCreatedAt: Type.Optional(Type.String({ format: 'date-time' })),
 });
 
 // First define the recursive type
@@ -45,8 +48,8 @@ const ProjectEvent = Type.Recursive((Self) =>
     path: Type.String(),
     depth: Type.Number(),
     cost: Type.Union([
-      Type.Record(Type.String(), CurrencySummary), // For folders
-      EventCost,                                   // For files
+      CurrencySummary,  // For folders
+      EventCost,        // For files
       Type.Null()
     ]),
     children: Type.Array(Self)
@@ -91,16 +94,13 @@ export const getProjectDetails = async (id: string) => {
     ? await db
       .select({
         projectEventId: projectsCost.projectEventId,
-        budgetIncomeCurrency: projectsCost.budgetIncomeCurrency,
-        budgetIncome: projectsCost.budgetIncome,
-        budgetExpenseCurrency: projectsCost.budgetExpenseCurrency,
-        budgetExpense: projectsCost.budgetExpense,
-        realIncomeCurrency: projectsCost.realIncomeCurrency,
-        realIncome: projectsCost.realIncome,
-        realIncomeCreatedAt: projectsCost.realIncomeCreatedAt,
-        realExpenseCurrency: projectsCost.realExpenseCurrency,
-        realExpense: projectsCost.realExpense,
-        realExpenseCreatedAt: projectsCost.realExpenseCreatedAt,
+        transactionType: projectsCost.transactionType,
+        budgetCurrency: projectsCost.budgetCurrency,
+        budget: projectsCost.budget,
+        actualCurrency: projectsCost.actualCurrency,
+        actual: projectsCost.actual,
+        hasActual: projectsCost.hasActual,
+        actualCreatedAt: projectsCost.actualCreatedAt,
         eventSummary: projectsCost.eventSummary,
       })
       .from(projectsCost)

@@ -15,7 +15,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {EnumProjectEventType} from "backend/src/db/schema";
-import {CostView} from "./CostView";
+import {CostView, CombinedCostView} from "./CostView";
 
 type Props = {
   defaultCurrency: string;
@@ -33,6 +33,7 @@ export const TableEventDetail = ({
   const iconSize = 18;
   const styleFolder = "text-blue-500";
   const [maxDepth, setMaxDepth] = useState(1);
+  const [viewMode, setViewMode] = useState<'inline' | 'summary' | 'progress' | 'compact' | 'detailed'>('inline');
 
   useEffect(() => {
     setMaxDepth(data?.maxDepth || 1);
@@ -106,70 +107,48 @@ export const TableEventDetail = ({
         },
       },
       {
-        accessorKey: "cost.budgetIncome",
+        accessorKey: "cost.budget",
         enableSorting: true,
         size: 100,
         header: ({column}) => {
-          return (<DataTableColumnHeader column={column} title={"Budget Income"} className={"w-full flex-1 justify-end"}/>)
+          return (<DataTableColumnHeader column={column} title={"Budget"} className={"w-full flex-1 justify-end"}/>)
         },
         cell: ({row}: { cell: any; row: Row<ProjectMember> }) => {
-          return (<CostView
+          return (<CombinedCostView
             maxDepth={maxDepth}
             currency={defaultCurrency}
             cell={row.original}
-            objKey={"budgetIncome"}
-            objKeyCurrency={"budgetIncomeCurrency"}
+            field={"budget"}
+            settings={{ 
+              showEmptyCost: false, 
+              useSummaryView: viewMode === 'summary', 
+              useCompactView: viewMode === 'compact',
+              useProgressView: viewMode === 'progress',
+              useInlineView: viewMode === 'inline'
+            }}
           />)
         }
       },
       {
-        accessorKey: "cost.budgetExpense",
+        accessorKey: "cost.real",
         enableSorting: true,
         size: 100,
         header: ({column}) => {
-          return (<DataTableColumnHeader column={column} title={"Budget Expense"} className={"w-full flex-1 justify-end"}/>)
+          return (<DataTableColumnHeader column={column} title={"Actual"} className={"w-full flex-1 justify-end"}/>)
         },
         cell: ({row}: { cell: any; row: Row<ProjectMember> }) => {
-          return (<CostView
+          return (<CombinedCostView
             maxDepth={maxDepth}
             currency={defaultCurrency}
             cell={row.original}
-            objKey={"budgetExpense"}
-            objKeyCurrency={"budgetExpenseCurrency"}
-          />)
-        }
-      },
-      {
-        accessorKey: "cost.realIncome",
-        enableSorting: true,
-        size: 100,
-        header: ({column}) => {
-          return (<DataTableColumnHeader column={column} title={"Real Income"} className={"w-full flex-1 justify-end"}/>)
-        },
-        cell: ({row}: { cell: any; row: Row<ProjectMember> }) => {
-          return (<CostView
-            maxDepth={maxDepth}
-            currency={defaultCurrency}
-            cell={row.original}
-            objKey={"realIncome"}
-            objKeyCurrency={"realIncomeCurrency"}
-          />)
-        }
-      },
-      {
-        accessorKey: "cost.realExpense",
-        enableSorting: true,
-        size: 100,
-        header: ({column}) => {
-          return (<DataTableColumnHeader column={column} title={"Real Expense"} className={"w-full flex-1 justify-end"}/>)
-        },
-        cell: ({row}: { cell: any; row: Row<ProjectMember> }) => {
-          return (<CostView
-            maxDepth={maxDepth}
-            currency={defaultCurrency}
-            cell={row.original}
-            objKey={"realExpense"}
-            objKeyCurrency={"realExpenseCurrency"}
+            field={"real"}
+            settings={{ 
+              showEmptyCost: false, 
+              useSummaryView: viewMode === 'summary', 
+              useCompactView: viewMode === 'compact',
+              useProgressView: viewMode === 'progress',
+              useInlineView: viewMode === 'inline'
+            }}
           />)
         }
       },
@@ -195,6 +174,20 @@ export const TableEventDetail = ({
 
   return (
     <div className={"bg-card p-2 flex flex-col gap-2"}>
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-sm font-medium">Project Events</h3>
+        <button
+          onClick={() => {
+            const modes: Array<'inline' | 'summary' | 'progress' | 'compact' | 'detailed'> = ['inline', 'summary', 'progress', 'compact', 'detailed'];
+            const currentIndex = modes.indexOf(viewMode);
+            const nextIndex = (currentIndex + 1) % modes.length;
+            setViewMode(modes[nextIndex]);
+          }}
+          className="text-xs px-3 py-1 rounded bg-muted hover:bg-muted/80 transition-colors capitalize"
+        >
+          {viewMode} View
+        </button>
+      </div>
       <DataTable table={table} pageSizeOptions={[5, 10, 20]}>
       </DataTable>
     </div>

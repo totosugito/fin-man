@@ -8,6 +8,7 @@ import {
   integer,
   numeric,
   char,
+  boolean,
   index,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
@@ -17,9 +18,11 @@ import {
   EnumProjectEventType,
   EnumProjectStatus,
   EnumProjectType,
+  EnumTransactionType,
   PgEnumProjectEventType,
   PgEnumProjectStatus,
-  PgEnumProjectType
+  PgEnumProjectType,
+  PgEnumTransactionType
 } from "./enum-projects.ts";
 
 
@@ -91,28 +94,24 @@ export const projectsCost = pgTable(
       .notNull()
       .references(() => projectEvents.id, { onDelete: "cascade" }),
 
-    budgetIncomeCurrency: char("budget_income_currency", { length: 3 }).default("IDR"),
-    budgetIncome: numeric("budget_income", { precision: 18, scale: 2 }).default("0"),
+    transactionType: PgEnumTransactionType("transaction_type").notNull().default(EnumTransactionType.income),
+    
+    budgetCurrency: char("budget_currency", { length: 3 }).default("IDR"),
+    budget: numeric("budget", { precision: 18, scale: 2 }).default("0"),
 
-    budgetExpenseCurrency: char("budget_expense_currency", { length: 3 }).default("IDR"),
-    budgetExpense: numeric("budget_expense", { precision: 18, scale: 2 }).default("0"),
-
-    realIncomeCurrency: char("real_income_currency", { length: 3 }).default("IDR"),
-    realIncome: numeric("real_income", { precision: 18, scale: 2 }).default("0"),
-    realIncomeCreatedAt: timestamp("real_income_created_at", {
+    hasActual: boolean("has_actual").default(false),
+    actualCurrency: char("actual_currency", { length: 3 }).default("IDR"),
+    actual: numeric("actual", { precision: 18, scale: 2 }).default("0"),
+    actualCreatedAt: timestamp("actual_created_at", {
       withTimezone: true,
     }),
 
-    realExpenseCurrency: char("real_expense_currency", { length: 3 }).default("IDR"),
-    realExpense: numeric("real_expense", { precision: 18, scale: 2 }).default("0"),
-    realExpenseCreatedAt: timestamp("real_expense_created_at", {
-      withTimezone: true,
-    }),
     eventSummary: jsonb("event_summary").default(sql`'{}'::jsonb`),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   },
   (table) => [
     index("idx_projects_cost_event_id").on(table.projectEventId),
+    index("idx_projects_cost_transaction_type").on(table.transactionType),
   ]
 );

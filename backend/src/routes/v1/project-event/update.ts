@@ -68,16 +68,13 @@ const updateProjectEvent: FastifyPluginAsyncTypebox = async (app) => {
         if ((eventCost) && (existingEvent.eventType === EnumProjectEventType.file)) {
           // For files, update all cost fields
           const costUpdate: any = {};
-          if (eventCost.budgetIncomeCurrency !== undefined) costUpdate.budgetIncomeCurrency = eventCost.budgetIncomeCurrency;
-          if (eventCost.budgetIncome !== undefined) costUpdate.budgetIncome = eventCost.budgetIncome;
-          if (eventCost.budgetExpenseCurrency !== undefined) costUpdate.budgetExpenseCurrency = eventCost.budgetExpenseCurrency;
-          if (eventCost.budgetExpense !== undefined) costUpdate.budgetExpense = eventCost.budgetExpense;
-          if (eventCost.realIncomeCurrency !== undefined) costUpdate.realIncomeCurrency = eventCost.realIncomeCurrency;
-          if (eventCost.realIncome !== undefined) costUpdate.realIncome = eventCost.realIncome;
-          if (eventCost.realIncomeCreatedAt !== undefined) costUpdate.realIncomeCreatedAt = new Date(eventCost.realIncomeCreatedAt);
-          if (eventCost.realExpenseCurrency !== undefined) costUpdate.realExpenseCurrency = eventCost.realExpenseCurrency;
-          if (eventCost.realExpense !== undefined) costUpdate.realExpense = eventCost.realExpense;
-          if (eventCost.realExpenseCreatedAt !== undefined) costUpdate.realExpenseCreatedAt = new Date(eventCost.realExpenseCreatedAt);
+          if (eventCost.transactionType !== undefined) costUpdate.transactionType = eventCost.transactionType;
+          if (eventCost.budgetCurrency !== undefined) costUpdate.budgetCurrency = eventCost.budgetCurrency;
+          if (eventCost.budget !== undefined) costUpdate.budget = eventCost.budget;
+          if (eventCost.actualCurrency !== undefined) costUpdate.actualCurrency = eventCost.actualCurrency;
+          if (eventCost.actual !== undefined) costUpdate.actual = eventCost.actual;
+          if (eventCost.hasActual !== undefined) costUpdate.hasActual = eventCost.hasActual;
+          if (eventCost.actualCreatedAt !== undefined) costUpdate.actualCreatedAt = new Date(eventCost.actualCreatedAt);
 
           await tx.update(projectsCost)
             .set(costUpdate)

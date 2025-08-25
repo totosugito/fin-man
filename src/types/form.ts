@@ -1,5 +1,16 @@
 import {UseFormReturn} from "react-hook-form";
 
+export type FormCheckboxProps = {
+  form: UseFormReturn<any>;
+  item: {
+    name: string;
+    label: string;
+    description?: string;
+  };
+  disabled?: boolean;
+  className?: string;
+}
+
 export type FormInputProps = {
   form: UseFormReturn<any>;
   item: {

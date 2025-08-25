@@ -1,7 +1,7 @@
 "use client";
 
 import type { Table } from "@tanstack/react-table";
-import { Check, ChevronsUpDown, Settings2, X } from "lucide-react";
+import { Check, ChevronsUpDown, Columns3 } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -132,7 +132,7 @@ export function DataTableViewOptions<TData>({
           variant="outline"
           className="ml-auto flex"
         >
-          <Settings2 />
+          <Columns3 />
           View
           <ChevronsUpDown className="ml-auto opacity-50" />
         </Button>
