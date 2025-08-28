@@ -35,12 +35,7 @@ type Project = {
 }
 
 // Compact cost display for table rows
-const TableCostDisplay: React.FC<{ cost: any }> = ({ cost }) => {
-  // Debug: log cost structure to understand the data format
-  if (cost && Object.keys(cost).length > 0) {
-    console.log('Table cost data:', cost);
-  }
-  
+const TableCostDisplay: React.FC<{ cost: any }> = ({ cost }) => { 
   if (!cost || typeof cost !== 'object' || Object.keys(cost).length === 0) {
     return <div className="text-xs text-muted-foreground">No data</div>;
   }

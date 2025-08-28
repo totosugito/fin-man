@@ -20,6 +20,7 @@ export const AppApi = {
   },
   project: {
     list: APP_URL_V1 + "/project/list",
+    ganttView: APP_URL_V1 + "/project/gantt-view",
     create: APP_URL_V1 + "/project/create",
     crud: APP_URL_V1 + "/project",
   },

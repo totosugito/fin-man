@@ -12,6 +12,16 @@ export const useProjectList = (params: { sort?: string; order?: 'asc' | 'desc' }
   });
 }
 
+export const useProjectGanttView = (params: { sort?: string; order?: 'asc' | 'desc' }) => {
+  return useQuery({
+    queryKey: ['project-gantt-view', params.sort, params.order],
+    queryFn: async () => {
+      const response = await fetchApi({method: "GET", url: `${AppApi.project.ganttView}`, withCredentials: true, params: params});
+      return(response);
+    },
+  });
+}
+
 export const useProjectCreate = () => {
   return useMutation({
     mutationKey: ['project-create'],

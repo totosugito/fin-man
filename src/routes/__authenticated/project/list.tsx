@@ -1,11 +1,11 @@
 import {createFileRoute, useNavigate} from '@tanstack/react-router'
 import {useTranslation} from "react-i18next";
 import {useQueryClient} from "@tanstack/react-query";
-import {useProjectCreate, useProjectDelete, useProjectList, useProjectPut} from "@/service/project";
+import {useProjectCreate, useProjectDelete, useProjectList, useProjectPut, useProjectGanttView} from "@/service/project";
 import {PageTitle} from "@/components/app";
 import * as React from "react";
 import {SkeTable} from "@/components/custom/skeleton";
-import {DataTableView, ProjectCardView, FormDataCreate} from "@/components/pages/project/list";
+import {DataTableView, ProjectCardView, FormDataCreate, ProjectGanttView} from "@/components/pages/project/list";
 import {Button} from "@/components/ui/button";
 import {PlusIcon} from "lucide-react";
 import {showNotifError, showNotifSuccess} from "@/lib/show-notif";
@@ -26,9 +26,10 @@ function RouteComponent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {sort, order} = Route.useSearch();
-  const [viewMode, setViewMode] = React.useState<'table' | 'card'>('card');
+  const [viewMode, setViewMode] = React.useState<'table' | 'card' | 'gantt'>('card');
 
   const dataListQuery = useProjectList({sort, order});
+  const dataGanttQuery = useProjectGanttView({sort, order});
   const dataCreateMutation = useProjectCreate();
   const dataDeleteMutation = useProjectDelete();
   const dataPutMutation = useProjectPut();
@@ -79,7 +80,7 @@ function RouteComponent() {
   });
 
   const isLoading = () => {
-    return (dataListQuery.isPending || dataCreateMutation.isPending || dataDeleteMutation.isPending || dataPutMutation.isPending);
+    return (dataListQuery.isPending || dataGanttQuery.isPending || dataCreateMutation.isPending || dataDeleteMutation.isPending || dataPutMutation.isPending);
   }
 
   const onDataCreated = () => {
@@ -95,6 +96,7 @@ function RouteComponent() {
         dataCreateMutation.mutate({body}, {
           onSuccess: async () => {
             await queryClient.invalidateQueries({queryKey: ['project-list', sort, order]});
+            await queryClient.invalidateQueries({queryKey: ['project-gantt-view', sort, order]});
             showNotifSuccess({message: "Project created successfully"});
             setConfirmationCreate(null);
           },
@@ -119,6 +121,7 @@ function RouteComponent() {
           {
             onSuccess: async () => {
               await queryClient.invalidateQueries({queryKey: ['project-list', sort, order]});
+              await queryClient.invalidateQueries({queryKey: ['project-gantt-view', sort, order]});
               showNotifSuccess({message: "Project deleted successfully"});
             },
             onError: (error: any) => showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message}),
@@ -144,6 +147,7 @@ function RouteComponent() {
         dataPutMutation.mutate({id: item?.id, body: body}, {
           onSuccess: async () => {
             await queryClient.invalidateQueries({queryKey: ['project-list', sort, order]});
+            await queryClient.invalidateQueries({queryKey: ['project-gantt-view', sort, order]});
             showNotifSuccess({message: "Project updated successfully"});
             setConfirmationPut(null);
           },
@@ -179,6 +183,14 @@ function RouteComponent() {
           >
             Card
           </Button>
+          <Button
+            variant={viewMode === 'gantt' ? 'default' : 'ghost'}
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+            onClick={() => setViewMode('gantt')}
+          >
+            Gantt
+          </Button>
         </div>
         <Button variant={"outline"} size={"sm"} onClick={onDataCreated} disabled={isLoading()}>
           {isLoading() ? <span className={"animate-spin rounded-full h-3 w-3 border-b-2 border-current"}/> :
@@ -192,18 +204,27 @@ function RouteComponent() {
     <div className={"divContent"}>
       <PageTitle title={<div>Project List</div>} showSeparator={false}/>
 
-      {(dataListQuery.isPending) && <div className={"h-full w-full flex"}>
+      {(dataListQuery.isPending || (viewMode === 'gantt' && dataGanttQuery.isPending)) && <div className={"h-full w-full flex"}>
         <SkeTable/>
       </div>}
 
-      {dataListQuery.isError &&
-        <div className={"text-lg text-destructive"}>Error: {dataListQuery?.error?.message}</div>}
+      {(dataListQuery.isError || (viewMode === 'gantt' && dataGanttQuery.isError)) &&
+        <div className={"text-lg text-destructive"}>Error: {dataListQuery?.error?.message || dataGanttQuery?.error?.message}</div>}
 
-      {dataListQuery.isSuccess && (
+      {((viewMode !== 'gantt' && dataListQuery.isSuccess) || (viewMode === 'gantt' && dataGanttQuery.isSuccess)) && (
         <div className="bg-card p-2 flex flex-col gap-2">
           {viewMode === 'table' ? (
             <DataTableView
               data={dataListQuery?.data}
+              onEditClicked={onDataPut}
+              onDeleteClicked={onDeleteData}
+              onShowDetail={onShowDetail}
+              loading={isLoading()}
+              toolbarContent={<ViewAddItem/>}
+            />
+          ) : viewMode === 'gantt' ? (
+            <ProjectGanttView
+              data={dataGanttQuery?.data}
               onEditClicked={onDataPut}
               onDeleteClicked={onDeleteData}
               onShowDetail={onShowDetail}
