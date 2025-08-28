@@ -72,11 +72,13 @@ const GanttCellDetails: React.FC<{
     const { t } = useTranslation();
 
     if (!monthData || !monthData.events || monthData.events.length === 0) {
+        const minHeight = 100; // Minimum height for empty state
         return (
             <div className={cn(
-                "h-32 flex items-center justify-center text-xs text-muted-foreground",
+                "flex items-center justify-center text-sm text-muted-foreground",
                 isCurrentMonth && "bg-blue-50 dark:bg-blue-950"
-            )}>
+            )}
+            style={{ height: `${minHeight}px` }}>
                 <span className="text-muted-foreground">No events</span>
             </div>
         );
@@ -89,38 +91,38 @@ const GanttCellDetails: React.FC<{
             accessorKey: "name",
             enableSorting: false,
             header: () => (
-                <div className="text-xs font-medium">Event</div>
+                <div className="text-sm font-semibold">Event</div>
             ),
             cell: ({ cell, row }) => (
-                <div className="flex items-center gap-1">
-                    <FileText className="h-3 w-3 text-gray-500 shrink-0" />
-                    <div className="min-w-0 flex-1">
-                        <div className="font-medium text-[12px] truncate" title={cell.getValue() as string}>
+                <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-gray-500 shrink-0" />
+                        <div className="font-medium text-sm truncate" title={cell.getValue() as string}>
                             {cell.getValue() as string}
                         </div>
-                        <Badge
-                            variant={row.original?.transactionType === 'income' ? 'default' : 'destructive'}
-                            className="text-[8px] px-1 py-0 h-3 mt-0.5"
-                        >
-                            {row.original?.transactionType}
-                        </Badge>
                     </div>
+                    <Badge
+                        variant={row.original?.transactionType === 'income' ? 'default' : 'destructive'}
+                        className="text-[10px] px-2 py-0"
+                    >
+                        {row.original?.transactionType}
+                    </Badge>
                 </div>
             ),
         },
         {
             accessorKey: "budget",
-            size: 80,
+            size: 120,
             enableSorting: false,
             header: () => (
-                <div className="text-xs font-medium text-right">Budget</div>
+                <div className="text-sm font-semibold text-right">Budget</div>
             ),
             cell: ({ row }) => {
                 const budget = row.original?.budget;
                 const currency = row.original?.budgetCurrency;
                 const transactionType = row.original?.transactionType;
 
-                if (!budget || !currency) return <div className="text-right text-[12px] text-muted-foreground">-</div>;
+                if (!budget || !currency) return <div className="text-right text-sm text-muted-foreground">-</div>;
 
                 const baseColorClass = transactionType === 'income'
                     ? 'text-green-600 dark:text-green-400'
@@ -129,19 +131,21 @@ const GanttCellDetails: React.FC<{
                 const currencyColorClass = CurrencyList[currency as keyof typeof CurrencyList]?.textColor || 'text-muted-foreground';
 
                 return (
-                    <div className="text-right text-[12px]">
-                        <div className={`font-mono ${currencyColorClass}`}>{currency}</div>
-                        <div className={`font-mono ${baseColorClass}`}>{parseFloat(budget).toLocaleString()}</div>
+                    <div className="text-right">
+                        <div className={`text-xs font-mono ${currencyColorClass} mb-1`}>{currency}</div>
+                        <div className={`text-sm font-mono ${baseColorClass}`}>
+                            {parseFloat(budget).toLocaleString()}
+                        </div>
                     </div>
                 );
             },
         },
         {
             accessorKey: "actual",
-            size: 80,
+            size: 120,
             enableSorting: false,
             header: () => (
-                <div className="text-xs font-medium text-right">Actual</div>
+                <div className="text-sm text-right">Actual</div>
             ),
             cell: ({ row }) => {
                 const actual = row.original?.actual;
@@ -150,7 +154,7 @@ const GanttCellDetails: React.FC<{
                 const transactionType = row.original?.transactionType;
 
                 if (!hasActual || !actual || !currency) {
-                    return <div className="text-right text-[12px] text-muted-foreground">-</div>;
+                    return <div className="text-right text-sm text-muted-foreground">-</div>;
                 }
 
                 const baseColorClass = transactionType === 'income'
@@ -160,9 +164,11 @@ const GanttCellDetails: React.FC<{
                 const currencyColorClass = CurrencyList[currency as keyof typeof CurrencyList]?.textColor || 'text-muted-foreground';
 
                 return (
-                    <div className="text-right text-[12px]">
-                        <div className={`font-mono ${currencyColorClass}`}>{currency}</div>
-                        <div className={`font-mono font-medium ${baseColorClass}`}>{parseFloat(actual).toLocaleString()}</div>
+                    <div className="text-right">
+                        <div className={`text-xs font-mono ${currencyColorClass} mb-1`}>{currency}</div>
+                        <div className={`text-sm font-mono ${baseColorClass}`}>
+                            {parseFloat(actual).toLocaleString()}
+                        </div>
                     </div>
                 );
             },
@@ -174,20 +180,32 @@ const GanttCellDetails: React.FC<{
         columns: eventColumns,
         pageCount: -1,
         initialState: {
-            pagination: { pageIndex: 0, pageSize: 5 },
+            pagination: { pageIndex: 0, pageSize: 10 },
         },
         manualSorting: false,
         manualPagination: false
     });
 
+    // Calculate dynamic height based on content
+    const maxRowsToShow = 5;
+    const rowHeight = 80; // Approximate height per row including padding
+    const headerHeight = 40; // Height for table header
+    const paddingHeight = 4; // Additional padding
+    const actualRowCount = Math.min(events.length, maxRowsToShow);
+    const calculatedHeight = headerHeight + (actualRowCount * rowHeight) + paddingHeight;
+    const minHeight = headerHeight + rowHeight + paddingHeight; // At least one row height
+    const dynamicHeight = Math.max(calculatedHeight, minHeight);
+
     return (
         <div className={cn(
-            "h-64 overflow-y-auto text-xs",
+            "overflow-hidden",
             isCurrentMonth && "bg-blue-50 dark:bg-blue-950"
-        )}>
-            <div className="font-semibold mb-1">{projectName}</div>
-            <DataTable table={table} pageSizeOptions={[5, 10, 20]}>
-            </DataTable>
+        )}
+        style={{ height: `${dynamicHeight}px` }}>
+            <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
+                <DataTable table={table} className="text-sm">
+                </DataTable>
+            </div>
         </div>
     );
 };
@@ -244,21 +262,53 @@ export const ProjectGanttViewDetails = ({
     const monthHeaders = generateMonthHeaders();
 
     const columns = useMemo<ColumnDef<Project>[]>(() => {
-        // Add month columns with uniform width
+        const baseColumns: ColumnDef<Project>[] = [
+            {
+                accessorKey: "name",
+                size: 200,
+                minSize: 200,
+                maxSize: 200,
+                enableSorting: true,
+                header: ({ column }) => (
+                    <div className={"flex justify-center"}>
+                    <DataTableColumnHeader column={column} title={"Project"} />
+                    </div>
+                ),
+                cell: ({ cell, row }) => (
+                    <div className="px-2 align-top" style={{ verticalAlign: 'top' }}>
+                        <div className={"hover:underline cursor-pointer font-semibold text-sm"} 
+                             onClick={() => onShowDetail(row.original?.id)}>
+                            {cell.getValue() as string}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                            {row.original?.description || 'No description'}
+                        </div>
+                    </div>
+                ),
+                meta: {
+                    label: "Project",
+                    placeholder: "Search project name...",
+                    variant: "text",
+                    icon: Text,
+                },
+            }
+        ];
+
+        // Add month columns with optimized width
         const monthColumns: ColumnDef<Project>[] = monthHeaders.map((month) => ({
             accessorKey: `month_${month.yearMonth}`,
-            size: 550,
-            minSize: 550,
-            maxSize: 550,
+            size: 500,
+            minSize: 500,
+            maxSize: 500,
             enableResizing: false,
             enableSorting: false,
             header: () => (
                 <div className={cn(
-                    "text-center text-xs font-medium p-1 w-full",
+                    "text-center text-sm font-semibold p-2 w-full",
                     month.isCurrentMonth && "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-100"
                 )}>
-                    <div>{month.label}</div>
-                    <div className="text-[10px] text-muted-foreground">Events Detail</div>
+                    <div className="text-base">{month.label}</div>
+                    <div className="text-xs text-muted-foreground font-normal">Events Detail</div>
                 </div>
             ),
             cell: ({ row }) => {
@@ -266,7 +316,7 @@ export const ProjectGanttViewDetails = ({
                     (data) => data.yearMonth === month.yearMonth
                 );
                 return (
-                    <div className="w-full">
+                    <div className="w-full align-top" style={{ verticalAlign: 'top' }}>
                         <GanttCellDetails
                             monthData={monthData}
                             isCurrentMonth={month.isCurrentMonth}
@@ -282,14 +332,14 @@ export const ProjectGanttViewDetails = ({
         // Add action column
         const actionColumn: ColumnDef<Project> = {
             accessorKey: "action",
-            size: 60,
-            header: "",
+            size: 80,
+            header: "Actions",
             cell: ({ row }) => {
                 return (
-                    <div className="text-center sticky right-0 bg-background border-l border-gray-200 p-1">
+                    <div className="text-center sticky right-0 bg-background p-2">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size={"icon"} disabled={loading}>
+                                <Button variant="ghost" size={"sm"} disabled={loading}>
                                     <IoMenu />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -310,7 +360,7 @@ export const ProjectGanttViewDetails = ({
             }
         };
 
-        return [...monthColumns, actionColumn];
+        return [...baseColumns, ...monthColumns, actionColumn];
     }, [loading, monthHeaders, onDeleteClicked, onEditClicked, onShowDetail, t]);
 
     const { table } = useDataTable({
@@ -318,8 +368,8 @@ export const ProjectGanttViewDetails = ({
         columns,
         pageCount: 1,
         initialState: {
-            columnPinning: { left: ["#", "name"], right: ["action"] },
-            pagination: { pageIndex: 0, pageSize: 10 },
+            columnPinning: { left: ["name"], right: ["action"] },
+            pagination: { pageIndex: 0, pageSize: 5 },
         },
         manualSorting: false,
         enableColumnResizing: false,
@@ -327,8 +377,8 @@ export const ProjectGanttViewDetails = ({
     });
 
     return (
-        <div className="">
-            <DataTable table={table}>
+        <div className="h-full overflow-y-auto" style={{ height: 'calc(100vh - 130px)' }}>
+            <DataTable table={table} className="[&_td]:align-top">
                 <DataTableFilter table={table}>
                     {toolbarContent}
                 </DataTableFilter>
