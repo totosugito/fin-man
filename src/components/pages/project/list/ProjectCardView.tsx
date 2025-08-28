@@ -35,8 +35,8 @@ const ProjectCostSummary: React.FC<{ cost: any }> = ({ cost }) => {
   const formatAmount = (amount: string | number) => {
     const num = parseFloat(String(amount));
     if (isNaN(num) || num === 0) return '0';
-    if (Math.abs(num) >= 1000000) return `${(num/1000000).toFixed(1)}M`;
-    if (Math.abs(num) >= 1000) return `${(num/1000).toFixed(1)}K`;
+    if (Math.abs(num) >= 1000000) return `${(num/1000000).toFixed(2)}M`;
+    if (Math.abs(num) >= 1000) return `${(num/1000).toFixed(2)}K`;
     return num.toFixed(0);
   };
 
