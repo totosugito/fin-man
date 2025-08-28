@@ -1,0 +1,345 @@
+{
+  "name": "Pembangunan Rumah",
+  "description": "Project pembangunan rumah 1 lantai lengkap dari perencanaan hingga finishing",
+  "events": [
+    {
+      "name": "/",
+      "eventType": "folder",
+      "children": [
+        {
+          "name": "Perencanaan",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Desain Arsitektur",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "6000.00",
+                "actualCurrency": "IDR",
+                "actual": "5800.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-01-15"
+              }
+            },
+            {
+              "name": "Izin Mendirikan Bangunan (IMB)",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "3000.00",
+                "actualCurrency": "IDR",
+                "actual": "2900.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-01-20"
+              }
+            },
+            {
+              "name": "Survey Tanah",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "2000.00",
+                "actualCurrency": "IDR",
+                "actual": "2100.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-02-02"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Keuangan",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Tabungan Pribadi",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "income",
+                "budgetCurrency": "IDR",
+                "budget": "60000.00",
+                "actualCurrency": "IDR",
+                "actual": "60000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-01-05"
+              }
+            },
+            {
+              "name": "Pinjaman Bank",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "income",
+                "budgetCurrency": "IDR",
+                "budget": "40000.00",
+                "actualCurrency": "IDR",
+                "actual": "40000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-02-10"
+              }
+            },
+            {
+              "name": "Dukungan Keluarga",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "income",
+                "budgetCurrency": "IDR",
+                "budget": "20000.00",
+                "actualCurrency": "IDR",
+                "actual": "20000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-03-01"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bahan Bangunan",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Pondasi",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Batu Kali",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "7000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "6800.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-03-15"
+                  }
+                },
+                {
+                  "name": "Pasir Urug",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "4000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "3900.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-03-16"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Dinding",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Batu Bata",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "16000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "15900.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-04-10"
+                  }
+                },
+                {
+                  "name": "Semen",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "12000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "11800.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-04-12"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Atap",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Kayu",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "8000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "7900.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-06-01"
+                  }
+                },
+                {
+                  "name": "Genteng",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "9000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "8800.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-06-02"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Finishing",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Cat Dinding",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "5000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "4950.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-09-15"
+                  }
+                },
+                {
+                  "name": "Keramik Lantai",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "11000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "10800.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-09-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Tenaga Kerja",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Mandor",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "9000.00",
+                "actualCurrency": "IDR",
+                "actual": "9000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-05-01"
+              }
+            },
+            {
+              "name": "Tukang Harian",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "22000.00",
+                "actualCurrency": "IDR",
+                "actual": "21900.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-07-10"
+              }
+            },
+            {
+              "name": "Helper",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "11000.00",
+                "actualCurrency": "IDR",
+                "actual": "10800.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-07-15"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Instalasi",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Listrik",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "8000.00",
+                "actualCurrency": "IDR",
+                "actual": "7800.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-10-01"
+              }
+            },
+            {
+              "name": "Air & Sanitasi",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "7000.00",
+                "actualCurrency": "IDR",
+                "actual": "6950.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-10-05"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dokumentasi & Lain-lain",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Dokumentasi Foto",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "1500.00",
+                "actualCurrency": "IDR",
+                "actual": "1500.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-11-10"
+              }
+            },
+            {
+              "name": "Acara Syukuran",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "5000.00",
+                "actualCurrency": "IDR",
+                "actual": "5200.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-12-05"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

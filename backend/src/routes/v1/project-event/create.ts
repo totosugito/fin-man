@@ -6,7 +6,7 @@ import {type Static, Type} from '@sinclair/typebox';
 import {projectEvents, projects, EnumProjectEventType, EnumTransactionType, projectsCost} from "../../../db/schema/index.ts";
 import {and, eq} from 'drizzle-orm';
 import {randomUUID} from "node:crypto";
-import {computeParentCost} from "../../../services/project-event/update-cost.ts";
+import {computeParentCost, computeEventCost} from "../../../services/project-event/update-cost.ts";
 import {eventCost} from "../../../types/project-event.ts";
 
 const bodySchema = Type.Object({
@@ -120,7 +120,8 @@ const projectEventRoutes: FastifyPluginAsyncTypebox = async (app) => {
 
       if (eventType === EnumProjectEventType.folder) {
         const result = await db.insert(projectsCost).values({
-          projectEventId: newEvent.id
+          projectEventId: newEvent.id,
+          transactionType: EnumTransactionType.folder,
         }).returning();
 
         if (!result || result.length === 0) {
@@ -129,11 +130,25 @@ const projectEventRoutes: FastifyPluginAsyncTypebox = async (app) => {
             message: 'Failed to create event cost'
           });
         }
+
+        // Compute initial event summary for the folder
+        await computeEventCost(newEvent.id);
       }
       else {
+        // Validate transaction type for file events
+        const fileTransactionType = eventCost?.transactionType;
+        if (fileTransactionType && 
+            fileTransactionType !== EnumTransactionType.income && 
+            fileTransactionType !== EnumTransactionType.expense) {
+          return reply.status(400).send({
+            success: false,
+            message: 'File events can only have income or expense transaction types'
+          });
+        }
+
         const result = await db.insert(projectsCost).values({
           projectEventId: newEvent.id,
-          transactionType: eventCost?.transactionType || EnumTransactionType.expense,
+          transactionType: fileTransactionType || EnumTransactionType.expense,
           budgetCurrency: eventCost?.budgetCurrency || 'IDR',
           budget: eventCost?.budget || '0',
           actualCurrency: eventCost?.actualCurrency || 'IDR',

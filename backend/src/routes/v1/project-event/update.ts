@@ -3,8 +3,8 @@ import {withErrorHandler} from "../../../utils/withErrorHandler.ts";
 import {db} from "../../../db/index.ts";
 import {eq} from 'drizzle-orm';
 import {Type} from '@sinclair/typebox';
-import {projectEvents, projectsCost, EnumProjectEventType} from "../../../db/schema/index.ts";
-import {computeParentCost} from "../../../services/project-event/update-cost.ts";
+import {projectEvents, projectsCost, EnumProjectEventType, EnumTransactionType} from "../../../db/schema/index.ts";
+import {computeParentCost, computeEventCost} from "../../../services/project-event/update-cost.ts";
 import {eventCost} from "../../../types/project-event.ts";
 
 const bodySchema = Type.Object({
@@ -49,6 +49,18 @@ const updateProjectEvent: FastifyPluginAsyncTypebox = async (app) => {
         });
       }
 
+      // Validate transaction type for file events before starting transaction
+      if (eventCost && existingEvent.eventType === EnumProjectEventType.file) {
+        if (eventCost.transactionType && 
+            eventCost.transactionType !== EnumTransactionType.income && 
+            eventCost.transactionType !== EnumTransactionType.expense) {
+          return reply.status(400).send({
+            success: false,
+            message: 'File events can only have income or expense transaction types'
+          });
+        }
+      }
+
       // Start a transaction
       await db.transaction(async (tx) => {
         // Update the project event
@@ -81,8 +93,11 @@ const updateProjectEvent: FastifyPluginAsyncTypebox = async (app) => {
             .where(eq(projectsCost.projectEventId, id));
         }
 
-        // Recalculate parent costs using the transaction
-        await computeParentCost(id, tx);
+        // Recalculate costs based on event type
+        if (existingEvent.eventType === EnumProjectEventType.file) {
+          // For file events, recalculate parent costs
+          await computeParentCost(id, tx);
+        }
       });
 
       // Fetch and return the updated event

@@ -156,7 +156,7 @@ export const TableEventDetail = ({
     pageCount: -1,
     initialState: {
       columnPinning: {left: ["name"]},
-      pagination: {pageIndex: 0, pageSize: 10},
+      pagination: {pageIndex: 0, pageSize: 1000},
       expanded: expanded,
     },
     onExpandedChange: setExpanded,
@@ -170,7 +170,7 @@ export const TableEventDetail = ({
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-sm font-medium">Project Events</h3>
       </div>
-      <DataTable table={table} pageSizeOptions={[5, 10, 20]}>
+      <DataTable table={table} pageSizeOptions={[1000]}>
       </DataTable>
     </div>
   )

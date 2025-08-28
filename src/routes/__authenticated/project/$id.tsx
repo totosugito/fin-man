@@ -85,7 +85,7 @@ function RouteComponent() {
         type: "select",
         name: "transactionType",
         label: "Transaction Type",
-        options: ObjToOptionList(EnumTransactionType),
+        options: ObjToOptionList(EnumTransactionType).filter(option => option.value !== 'folder'),
       },
       budgetCurrency: {
         type: "select",

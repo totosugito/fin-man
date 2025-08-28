@@ -1,0 +1,327 @@
+{
+  "name": "Konferensi Internasional Teknologi 2025",
+  "description": "Project penyelenggaraan konferensi internasional bidang teknologi dengan peserta global, mencakup perencanaan, operasional, promosi, dan pelaporan.",
+  "events": [
+    {
+      "name": "/",
+      "eventType": "folder",
+      "children": [
+        {
+          "name": "Perencanaan",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Rapat Internal Panitia",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "4000.00",
+                "actualCurrency": "USD",
+                "actual": "3800.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-01-12"
+              }
+            },
+            {
+              "name": "Koordinasi dengan Sponsor",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "2500.00",
+                "actualCurrency": "USD",
+                "actual": "2600.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-01-28"
+              }
+            },
+            {
+              "name": "Perizinan Acara",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "3000.00",
+                "actualCurrency": "USD",
+                "actual": "2950.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-02-10"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Keuangan",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Sponsor Utama",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "income",
+                "budgetCurrency": "USD",
+                "budget": "150000.00",
+                "actualCurrency": "USD",
+                "actual": "150000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-02-01"
+              }
+            },
+            {
+              "name": "Tiket Peserta",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "income",
+                "budgetCurrency": "USD",
+                "budget": "80000.00",
+                "actualCurrency": "USD",
+                "actual": "82000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-03-05"
+              }
+            },
+            {
+              "name": "Booth Pameran",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "income",
+                "budgetCurrency": "USD",
+                "budget": "50000.00",
+                "actualCurrency": "USD",
+                "actual": "50500.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-03-20"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Venue & Akomodasi",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Sewa Gedung",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "30000.00",
+                "actualCurrency": "USD",
+                "actual": "29800.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-04-10"
+              }
+            },
+            {
+              "name": "Dekorasi & Panggung",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "15000.00",
+                "actualCurrency": "USD",
+                "actual": "15200.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-04-15"
+              }
+            },
+            {
+              "name": "Hotel untuk Pembicara",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "20000.00",
+                "actualCurrency": "USD",
+                "actual": "19900.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-05-01"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Promosi & Media",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Desain Materi Promosi",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "5000.00",
+                "actualCurrency": "USD",
+                "actual": "4950.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-05-20"
+              }
+            },
+            {
+              "name": "Iklan Media Sosial",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "12000.00",
+                "actualCurrency": "USD",
+                "actual": "12100.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-06-01"
+              }
+            },
+            {
+              "name": "Press Conference",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "8000.00",
+                "actualCurrency": "USD",
+                "actual": "7900.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-06-15"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Operasional",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Registrasi Peserta",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "4000.00",
+                "actualCurrency": "USD",
+                "actual": "4100.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-07-01"
+              }
+            },
+            {
+              "name": "Layanan Konsumsi",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "12000.00",
+                "actualCurrency": "USD",
+                "actual": "11800.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-07-15"
+              }
+            },
+            {
+              "name": "Keamanan & Petugas Lapangan",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "7000.00",
+                "actualCurrency": "USD",
+                "actual": "7050.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-07-25"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Teknologi & Infrastruktur",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Sistem Ticketing Online",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "10000.00",
+                "actualCurrency": "USD",
+                "actual": "10200.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-08-10"
+              }
+            },
+            {
+              "name": "Website Resmi Acara",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "8000.00",
+                "actualCurrency": "USD",
+                "actual": "7950.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-08-18"
+              }
+            },
+            {
+              "name": "Streaming Online",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "12000.00",
+                "actualCurrency": "USD",
+                "actual": "11900.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-09-05"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Evaluasi & Dokumentasi",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Survey Peserta",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "3000.00",
+                "actualCurrency": "USD",
+                "actual": "2950.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-10-20"
+              }
+            },
+            {
+              "name": "Laporan Keuangan",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "2500.00",
+                "actualCurrency": "USD",
+                "actual": "2500.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-11-02"
+              }
+            },
+            {
+              "name": "Video Dokumentasi",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "7000.00",
+                "actualCurrency": "USD",
+                "actual": "7050.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-12-10"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

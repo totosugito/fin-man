@@ -1,0 +1,376 @@
+{
+  "name": "Peluncuran Produk Teknologi Baru 2025",
+  "description": "Project peluncuran produk teknologi baru dengan aktivitas global (USD) dan lokal (IDR), mulai dari riset, produksi, promosi, distribusi, hingga evaluasi.",
+  "events": [
+    {
+      "name": "/",
+      "eventType": "folder",
+      "children": [
+        {
+          "name": "Riset & Desain",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Riset Pasar Global",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "12000.00",
+                "actualCurrency": "USD",
+                "actual": "11800.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-01-12"
+              }
+            },
+            {
+              "name": "Studi Kompetitor Lokal",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "25000000.00",
+                "actualCurrency": "IDR",
+                "actual": "24800000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-01-25"
+              }
+            },
+            {
+              "name": "Desain Produk & Prototype",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Desain Hardware",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "USD",
+                    "budget": "15000.00",
+                    "actualCurrency": "USD",
+                    "actual": "15200.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-02-10"
+                  }
+                },
+                {
+                  "name": "Desain Software",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "45000000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "44800000.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-02-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Produksi",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Komponen Impor",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "60000.00",
+                "actualCurrency": "USD",
+                "actual": "60500.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-03-05"
+              }
+            },
+            {
+              "name": "Produksi Lokal",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Perakitan",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "120000000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "119000000.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-03-20"
+                  }
+                },
+                {
+                  "name": "Quality Control",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "30000000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "29800000.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-04-01"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Promosi",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Global Marketing",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Iklan Digital Global",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "USD",
+                    "budget": "25000.00",
+                    "actualCurrency": "USD",
+                    "actual": "24800.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-05-05"
+                  }
+                },
+                {
+                  "name": "Event Tech Expo (AS)",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "USD",
+                    "budget": "40000.00",
+                    "actualCurrency": "USD",
+                    "actual": "39500.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-05-25"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Promosi Lokal",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Billboard & Outdoor",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "50000000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "50500000.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-06-10"
+                  }
+                },
+                {
+                  "name": "Media Sosial Lokal",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "25000000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "24800000.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-06-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Distribusi",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Ekspor",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "35000.00",
+                "actualCurrency": "USD",
+                "actual": "34900.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-07-15"
+              }
+            },
+            {
+              "name": "Distribusi Domestik",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Transportasi Darat",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "40000000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "39500000.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-07-25"
+                  }
+                },
+                {
+                  "name": "Gudang Regional",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "35000000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "34800000.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-08-05"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Pendanaan",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Investor Asing",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "income",
+                "budgetCurrency": "USD",
+                "budget": "200000.00",
+                "actualCurrency": "USD",
+                "actual": "200000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-03-01"
+              }
+            },
+            {
+              "name": "Investor Lokal",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "income",
+                "budgetCurrency": "IDR",
+                "budget": "300000000.00",
+                "actualCurrency": "IDR",
+                "actual": "300000000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-04-01"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Operasional",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Tim Proyek",
+              "eventType": "folder",
+              "children": [
+                {
+                  "name": "Gaji Manajemen",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "IDR",
+                    "budget": "60000000.00",
+                    "actualCurrency": "IDR",
+                    "actual": "59800000.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-04-15"
+                  }
+                },
+                {
+                  "name": "Konsultan Internasional",
+                  "eventType": "file",
+                  "cost": {
+                    "transactionType": "expense",
+                    "budgetCurrency": "USD",
+                    "budget": "30000.00",
+                    "actualCurrency": "USD",
+                    "actual": "29800.00",
+                    "hasActual": true,
+                    "actualCreatedAt": "2025-04-20"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Legal & Administrasi",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "15000000.00",
+                "actualCurrency": "IDR",
+                "actual": "14900000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-05-01"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Evaluasi & Dokumentasi",
+          "eventType": "folder",
+          "children": [
+            {
+              "name": "Survey Konsumen",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "20000000.00",
+                "actualCurrency": "IDR",
+                "actual": "19900000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-09-10"
+              }
+            },
+            {
+              "name": "Audit Laporan Global",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "USD",
+                "budget": "7000.00",
+                "actualCurrency": "USD",
+                "actual": "7100.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-10-20"
+              }
+            },
+            {
+              "name": "Video Dokumentasi",
+              "eventType": "file",
+              "cost": {
+                "transactionType": "expense",
+                "budgetCurrency": "IDR",
+                "budget": "10000000.00",
+                "actualCurrency": "IDR",
+                "actual": "10200000.00",
+                "hasActual": true,
+                "actualCreatedAt": "2025-11-05"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

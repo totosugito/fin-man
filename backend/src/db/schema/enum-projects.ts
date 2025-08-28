@@ -24,5 +24,6 @@ export const PgEnumProjectEventType = pgEnum('project_event_type', Object.values
 export const EnumTransactionType = {
   income: "income",
   expense: "expense",
+  folder: "folder",
 };
 export const PgEnumTransactionType = pgEnum('transaction_type', Object.values(EnumTransactionType) as [string, ...string[]]);
