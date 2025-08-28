@@ -28,6 +28,7 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
         search: Type.Optional(Type.String()),
         status: Type.Optional(Type.String({ enum: Object.values(EnumProjectStatus) })),
         type: Type.Optional(Type.String({ enum: Object.values(EnumProjectType) })),
+        details: Type.Optional(Type.Boolean({ default: true, description: 'Include detailed events list for each month' })),
       }),
       response: {
         200: Type.Object({
@@ -53,7 +54,21 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
                   budget: Type.String(),
                   actual: Type.String()
                 })
-              }))
+              })),
+              events: Type.Optional(Type.Array(Type.Object({
+                id: Type.String({ format: 'uuid' }),
+                name: Type.String(),
+                description: Type.Union([Type.String(), Type.Null()]),
+                eventType: Type.String({ enum: Object.values(EnumProjectEventType) }),
+                transactionType: Type.String({ enum: Object.values(EnumTransactionType) }),
+                budgetCurrency: Type.Union([Type.String(), Type.Null()]),
+                budget: Type.Union([Type.String(), Type.Null()]),
+                actualCurrency: Type.Union([Type.String(), Type.Null()]),
+                actual: Type.Union([Type.String(), Type.Null()]),
+                hasActual: Type.Boolean(),
+                actualCreatedAt: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+                path: Type.String()
+              })))
             }))
           })),
           meta: Type.Object({
@@ -74,6 +89,7 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
         search,
         status,
         type,
+        details = true,
       } = req.query as {
         page?: number;
         limit?: number;
@@ -82,6 +98,7 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
         search?: string;
         status?: string;
         type?: string;
+        details?: boolean;
       };
 
       // Create sort expression
@@ -185,6 +202,8 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
             .select({
               eventId: projectEvents.id,
               eventName: projectEvents.name,
+              eventDescription: projectEvents.description,
+              eventType: projectEvents.eventType,
               eventPath: sql<string>`${projectEvents.path}::text`,
               transactionType: projectsCost.transactionType,
               budgetCurrency: projectsCost.budgetCurrency,
@@ -218,6 +237,7 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
               income: { budget: number; actual: number };
               expense: { budget: number; actual: number };
             }>;
+            events: any[];
           }>();
 
           costEvents.forEach(event => {
@@ -227,11 +247,30 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
               
               if (!monthlyGroups.has(yearMonth)) {
                 monthlyGroups.set(yearMonth, {
-                  costByCurrency: new Map()
+                  costByCurrency: new Map(),
+                  events: []
                 });
               }
               
               const monthData = monthlyGroups.get(yearMonth)!;
+              
+              // Add event to events list if details are requested
+              if (details) {
+                monthData.events.push({
+                  id: event.eventId,
+                  name: event.eventName,
+                  description: event.eventDescription,
+                  eventType: event.eventType,
+                  transactionType: event.transactionType,
+                  budgetCurrency: event.budgetCurrency,
+                  budget: event.budget,
+                  actualCurrency: event.actualCurrency,
+                  actual: event.actual,
+                  hasActual: event.hasActual,
+                  actualCreatedAt: event.actualCreatedAt,
+                  path: event.eventPath
+                });
+              }
               const budgetCurrency = event.budgetCurrency || 'IDR';
               const actualCurrency = event.actualCurrency || budgetCurrency;
               
@@ -301,10 +340,20 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
                 };
               });
               
-              return {
+              const monthlyEntry: any = {
                 yearMonth,
                 cost
               };
+              
+              // Include events list if details are requested
+              if (details) {
+                monthlyEntry.events = data.events.map(event => ({
+                  ...event,
+                  actualCreatedAt: event.actualCreatedAt?.toISOString() ?? null
+                }));
+              }
+              
+              return monthlyEntry;
             });
 
           return {

@@ -12,9 +12,9 @@ export const useProjectList = (params: { sort?: string; order?: 'asc' | 'desc' }
   });
 }
 
-export const useProjectGanttView = (params: { sort?: string; order?: 'asc' | 'desc' }) => {
+export const useProjectGanttView = (params: { sort?: string; order?: 'asc' | 'desc'; details?: boolean }) => {
   return useQuery({
-    queryKey: ['project-gantt-view', params.sort, params.order],
+    queryKey: ['project-gantt-view', params.sort, params.order, params.details],
     queryFn: async () => {
       const response = await fetchApi({method: "GET", url: `${AppApi.project.ganttView}`, withCredentials: true, params: params});
       return(response);
