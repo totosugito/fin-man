@@ -6,7 +6,7 @@ export {default as ColumnHeader} from "./ColumnHeader";
 export {default as PaginationView} from "./PaginationView"
 
 export {useDataTable} from "./hooks/use-data-table";
-export {DataTable} from "./data-table";
+export {DataTable, createRowNumberColumn} from "./data-table";
 export {DataTableColumnHeader} from "./data-table-column-header";
 export {DataTableFilter} from "./data-table-filter";
 export {DataTableViewOptions} from "./data-table-view-options";

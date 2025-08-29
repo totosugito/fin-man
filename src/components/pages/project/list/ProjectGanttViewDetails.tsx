@@ -15,7 +15,8 @@ import {
     useDataTable,
     DataTable,
     DataTableColumnHeader,
-    DataTableFilter
+    DataTableFilter,
+    createRowNumberColumn
 } from "@/components/custom/table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Text, FileText } from "lucide-react";
@@ -88,6 +89,7 @@ const GanttCellDetails: React.FC<{
     const events = monthData.events;
 
     const eventColumns = useMemo<ColumnDef<any>[]>(() => [
+        createRowNumberColumn({ accessorKey: "rowNum", id: "rowNum" }), 
         {
             accessorKey: "name",
             enableSorting: false,
@@ -203,8 +205,10 @@ const GanttCellDetails: React.FC<{
             isCurrentMonth && "bg-blue-50 dark:bg-blue-950"
         )}
             style={{ height: `${dynamicHeight}px` }}>
-            <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
-                <DataTable table={table} className="text-sm">
+            <div 
+            className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800"
+            >
+                <DataTable table={table} className={cn("text-sm")}>
                 </DataTable>
             </div>
         </div>
@@ -333,10 +337,12 @@ export const ProjectGanttViewDetails = ({
         const actionColumn: ColumnDef<Project> = {
             accessorKey: "action",
             size: 80,
+            minSize: 80,
+            maxSize: 80,
             header: "Actions",
             cell: ({ row }) => {
                 return (
-                    <div className="text-center sticky right-0 bg-background p-2">
+                    <div className="text-center">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size={"sm"} disabled={loading}>
@@ -360,7 +366,7 @@ export const ProjectGanttViewDetails = ({
             }
         };
 
-        return [...baseColumns, ...monthColumns, actionColumn];
+        return [createRowNumberColumn({ accessorKey: "rowNum", id: "rowNum" }), ...baseColumns, ...monthColumns, actionColumn];
     }, [loading, monthHeaders, onDeleteClicked, onEditClicked, onShowDetail, t]);
 
     const { table } = useDataTable({
@@ -368,7 +374,7 @@ export const ProjectGanttViewDetails = ({
         columns,
         pageCount: 1,
         initialState: {
-            columnPinning: { left: ["name"], right: ["action"] },
+            columnPinning: { left: ["rowNum", "action", "name"], right: [] },
             pagination: { pageIndex: 0, pageSize: 5 },
         },
         manualSorting: false,
@@ -378,7 +384,7 @@ export const ProjectGanttViewDetails = ({
 
     return (
         <div className="h-full overflow-y-auto" style={{ height: 'calc(100vh - 130px)' }}>
-            <DataTable table={table}>
+            <DataTable table={table} className="[&_td]:align-top">
                 <DataTableFilter table={table}>
                     {toolbarContent}
                 </DataTableFilter>

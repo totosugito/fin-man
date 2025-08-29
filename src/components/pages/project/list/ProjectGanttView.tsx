@@ -20,7 +20,8 @@ import {
   useDataTable,
   DataTable,
   DataTableColumnHeader,
-  DataTableFilter
+  DataTableFilter,
+  createRowNumberColumn
 } from "@/components/custom/table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Text, Calendar, FileText } from "lucide-react";
@@ -74,6 +75,7 @@ const EventsPopoverTable: React.FC<{
   });
 
   const eventColumns = useMemo<ColumnDef<any>[]>(() => [
+    createRowNumberColumn({ accessorKey: "rowNum", id: "rowNum" }), 
     {
       accessorKey: "name",
       enableSorting: true,
@@ -238,12 +240,6 @@ const EventsPopoverTable: React.FC<{
               <DataTable table={table}>
                 <DataTableFilter table={table} />
               </DataTable>
-            </div>
-          )}
-          
-          {eventsData?.meta && (
-            <div className="mt-4 text-xs text-muted-foreground border-t pt-2">
-              Total: {eventsData.meta.total} events
             </div>
           )}
         </div>
@@ -435,6 +431,7 @@ export const ProjectGanttView = ({
   const monthHeaders = generateMonthHeaders();
 
   const columns = useMemo<ColumnDef<Project>[]>(() => {
+    
     const baseColumns: ColumnDef<Project>[] = [
       {
         accessorKey: "name",
@@ -501,10 +498,12 @@ export const ProjectGanttView = ({
     const actionColumn: ColumnDef<Project> = {
       accessorKey: "action",
       size: 60,
+      minSize: 60,
+      maxSize: 60,
       header: "",
       cell: ({ row }) => {
         return (
-          <div className="text-center sticky right-0 bg-background border-l border-gray-200 p-1">
+          <div className="text-center sticky border-gray-200">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size={"icon"} disabled={loading}>
@@ -528,7 +527,7 @@ export const ProjectGanttView = ({
       }
     };
 
-    return [...baseColumns, ...monthColumns, actionColumn];
+    return [createRowNumberColumn({ accessorKey: "rowNum", id: "rowNum" }), ...baseColumns, ...monthColumns, actionColumn];
   }, [loading, monthHeaders, onDeleteClicked, onEditClicked, onShowDetail, t]);
 
   const { table } = useDataTable({
@@ -536,7 +535,7 @@ export const ProjectGanttView = ({
     columns,
     pageCount: 1,
     initialState: {
-      columnPinning: { left: ["#", "name"], right: ["action"] },
+      columnPinning: { left: ["rowNum", "action", "name"], right: [] },
       pagination: { pageIndex: 0, pageSize: 10 },
     },
     manualSorting: false,

@@ -16,7 +16,8 @@ import {
   useDataTable,
   DataTable,
   DataTableColumnHeader,
-  DataTableFilter, DataTableViewOptions
+  DataTableFilter, DataTableViewOptions,
+  createRowNumberColumn
 } from "@/components/custom/table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Text } from "lucide-react";
@@ -52,6 +53,7 @@ const DataTableUser = ({
   const { t } = useTranslation();
 
   const columns = useMemo<ColumnDef<User>[]>(() => [
+    createRowNumberColumn({ accessorKey: "rowNum", id: "rowNum", paginationData: paginationData }), 
     {
       accessorKey: "name",
       enableSorting: true,
@@ -134,7 +136,7 @@ const DataTableUser = ({
     columns,
     pageCount: paginationData.totalPages || -1,
     initialState: {
-      columnPinning: { left: ["action"] },
+      columnPinning: { left: ["rowNum", "action"] },
       pagination: { pageIndex: paginationData.page - 1, pageSize: paginationData.limit }, // Convert 1-based to 0-based
     },
     manualSorting: false,
@@ -164,7 +166,6 @@ const DataTableUser = ({
         table={table} 
         totalRowCount={paginationData.total}
         paginationData={paginationData}
-        pageSizeOptions={[1, 5,10]}
       >
         <div className={"flex flex-row gap-2 justify-between"}>
           <div className={"flex flex-row gap-2"}>

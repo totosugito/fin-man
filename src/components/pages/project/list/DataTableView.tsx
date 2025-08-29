@@ -15,7 +15,8 @@ import {
   useDataTable,
   DataTable,
   DataTableColumnHeader,
-  DataTableFilter
+  DataTableFilter,
+  createRowNumberColumn
 } from "@/components/custom/table";
 import type {ColumnDef} from "@tanstack/react-table";
 import {Text} from "lucide-react";
@@ -129,19 +130,7 @@ export const DataTableView = ({
   const {t} = useTranslation();
 
   const columns = useMemo<ColumnDef<Project>[]>(() => [
-    {
-      accessorKey: "#",
-      size: 40,
-      enableSorting: false,
-      indexed: true,
-      header: ({column}) => {
-        return (<DataTableColumnHeader column={column} title={"No"} className={"justify-center w-full"}/>)
-      },
-      cell: ({row, table}) => {
-        return <div
-          className="text-center">{(table.getSortedRowModel()?.flatRows?.findIndex((flatRow) => flatRow.id === row.id) || 0) + 1}</div>
-      },
-    },
+    createRowNumberColumn({ accessorKey: "rowNum", id: "rowNum" }), 
     {
       accessorKey: "name",
       enableSorting: true,
@@ -244,7 +233,7 @@ export const DataTableView = ({
     columns,
     pageCount: 1,
     initialState: {
-      columnPinning: {left: ["action"]},
+      columnPinning: {left: ['rowNum', 'action']},
       pagination: {pageIndex: 0, pageSize: 10},
     },
     manualSorting: false,

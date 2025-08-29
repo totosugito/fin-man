@@ -1,4 +1,4 @@
-import {flexRender, type Table as TanstackTable} from "@tanstack/react-table";
+import {ColumnDef, flexRender, type Table as TanstackTable} from "@tanstack/react-table";
 import type * as React from "react";
 import {DataTablePagination} from "./data-table-pagination";
 import {
@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/table";
 import {getCommonPinningStyles} from "./lib/data-table";
 import {cn} from "@/lib/utils";
+import { DataTableColumnHeader } from "./data-table-column-header";
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>;
   actionBar?: React.ReactNode;
-  showRowNumbers?: boolean; // Show/hide row numbers (default: true)
   totalRowCount?: number; // Total row count for manual pagination (overrides table.getRowCount())
   paginationData?: { // Optional pagination object for manual pagination
     page: number;
@@ -43,13 +43,66 @@ interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   }
 }
 
+type RowNumberColumnDef<T> = ColumnDef<T> & {
+  id?: string;
+  accessorKey?: string;
+  header?: string;
+  size?: number;
+  enableResizing?: boolean;
+  enableSorting?: boolean;
+  enableColumnFilter?: boolean;
+  paginationData?: { // Optional pagination object for manual pagination
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  styles?: {
+    header?: {
+      default?: string;
+    },
+    cell?: {
+      default?: string;
+    }
+  }
+};
+
+export function createRowNumberColumn<T>({ id="__row_number__", accessorKey="__row_number__", header="No", size=60, 
+  enableResizing=false, enableSorting=false,
+  enableColumnFilter=false, paginationData, styles}: RowNumberColumnDef<T>): ColumnDef<T> {
+  return {
+    id: id,
+    accessorKey: accessorKey,
+    size: size,
+    minSize: size,
+    maxSize: size,
+    enableResizing: enableResizing,
+    enableSorting: enableSorting,
+    enableColumnFilter: enableColumnFilter,
+    header: ({ column }) => (
+      <div className={cn("flex justify-center", styles?.header?.default)}>
+        <DataTableColumnHeader column={column} title={header} />
+      </div>
+    ),
+    cell: ({ row, table }) => {
+      return (
+        <div className={cn("flex justify-center", styles?.cell?.default)}>
+          {paginationData
+            ? (paginationData.page - 1) * paginationData.limit + row.index + 1
+            : table.getState().pagination.pageIndex * table.getState().pagination.pageSize + row.index + 1
+          }
+        </div>
+      )
+    },
+  };
+}
+
 export function DataTable<TData>({
                                    table,
                                    actionBar,
                                    children,
                                    className,
                                    pageSizeOptions,
-                                   showRowNumbers = true,
                                    totalRowCount,
                                    paginationData,
                                    pinned,
@@ -61,7 +114,7 @@ export function DataTable<TData>({
 
   return (
     <div
-      className={cn("flex w-full flex-col gap-2 overflow-hidden", "[&_td]:align-top", className)}
+      className={cn("flex w-full flex-col gap-2 overflow-hidden", "[&_td]:align-center", className)}
       {...props}
     >
       {children}
@@ -74,18 +127,10 @@ export function DataTable<TData>({
           <TableHeader className={cn("w-full", isStickyHeader ? "sticky top-0 z-10 backdrop-blur-xs" : "", styles?.TableHeader?.default)}>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="">
-                {/* Row Number Header */}
-                {showRowNumbers && (
-                  <TableHead
-                    className={cn("bg-[#fafafa]/90 dark:bg-[#28313e]/90 py-0 px-2 border w-12 text-center", styles?.TableHead?.default)}
-                  >
-                    #
-                  </TableHead>
-                )}
                 {headerGroup.headers.map((header) => {
                     return (
                       <TableHead
-                        className={cn("bg-[#fafafa]/90 dark:bg-[#28313e]/90 py-0 px-2 border relative group", styles?.TableHead?.default)}
+                        className={cn("bg-[#fafafa]/85 dark:bg-[#28313e]/85 py-0 px-2 border relative group", styles?.TableHead?.default)}
                         key={header.id}
                         colSpan={header.colSpan}
                         style={{
@@ -125,17 +170,6 @@ export function DataTable<TData>({
                   data-state={row.getIsSelected() && "selected"}
                   className="w-full"
                 >
-                  {/* Row Number Cell */}
-                  {showRowNumbers && (
-                    <TableCell
-                      className={cn("bg-[#fafafa] dark:bg-[#28313e] border py-1 px-2 w-12 text-center font-medium text-sm", styles?.TableHead?.default)}
-                    >
-                      {paginationData 
-                        ? (paginationData.page - 1) * paginationData.limit + index + 1
-                        : table.getState().pagination.pageIndex * table.getState().pagination.pageSize + index + 1
-                      }
-                    </TableCell>
-                  )}
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
@@ -158,7 +192,7 @@ export function DataTable<TData>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={table.getAllColumns().length + (showRowNumbers ? 1 : 0)}
+                  colSpan={table.getAllColumns().length}
                   className="h-24 text-center"
                 >
                   No results.
