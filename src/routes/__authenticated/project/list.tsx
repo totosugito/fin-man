@@ -16,6 +16,9 @@ import {ObjToOptionList} from "@/lib/my-utils";
 import {EnumProjectStatus, EnumProjectType} from "backend/src/db/schema";
 import {z} from "zod";
 import {AppRoute} from "@/constants/api";
+import { defaultStore, useAppStore } from '@/stores/useAppStore';
+import { EnumViewMode } from '@/constants/app-enum';
+
 
 export const Route = createFileRoute('/__authenticated/project/list')({
   component: RouteComponent,
@@ -26,7 +29,10 @@ function RouteComponent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {sort, order} = Route.useSearch();
-  const [viewMode, setViewMode] = React.useState<'table' | 'card' | 'gantt' | 'details'>('card');
+
+  const store = useAppStore();
+  const initialFilter = store?.projectList ?? defaultStore.projectList;
+  const [viewMode, setViewMode] = React.useState<typeof EnumViewMode[keyof typeof EnumViewMode]['value']>(initialFilter.viewMode);
 
   const dataListQuery = useProjectList({sort, order});
   const dataGanttQuery = useProjectGanttView({sort, order, details: true});
@@ -168,34 +174,46 @@ function RouteComponent() {
       <div className="flex items-center gap-2">
         <div className="flex items-center border rounded-md p-0.5 bg-muted/20">
           <Button
-            variant={viewMode === 'table' ? 'default' : 'ghost'}
+            variant={viewMode === EnumViewMode.table.value ? 'default' : 'ghost'}
             size="sm"
             className="h-7 px-2.5 text-xs"
-            onClick={() => setViewMode('table')}
+            onClick={() => {
+              store.setProjectList({...store.projectList, viewMode: EnumViewMode.table.value});
+              setViewMode(EnumViewMode.table.value);
+            }}
           >
             Table
           </Button>
           <Button
-            variant={viewMode === 'card' ? 'default' : 'ghost'}
+            variant={viewMode === EnumViewMode.card.value ? 'default' : 'ghost'}
             size="sm"
             className="h-7 px-2.5 text-xs"
-            onClick={() => setViewMode('card')}
+            onClick={() => {
+              store.setProjectList({...store.projectList, viewMode: EnumViewMode.card.value});
+              setViewMode(EnumViewMode.card.value)}
+            }
           >
             Card
           </Button>
           <Button
-            variant={viewMode === 'gantt' ? 'default' : 'ghost'}
+            variant={viewMode === EnumViewMode.gantt.value ? 'default' : 'ghost'}
             size="sm"
             className="h-7 px-2.5 text-xs"
-            onClick={() => setViewMode('gantt')}
+            onClick={() => {
+              store.setProjectList({...store.projectList, viewMode: EnumViewMode.gantt.value});
+              setViewMode(EnumViewMode.gantt.value)}
+            }
           >
             Gantt
           </Button>
           <Button
-            variant={viewMode === 'details' ? 'default' : 'ghost'}
+            variant={viewMode === EnumViewMode.details.value ? 'default' : 'ghost'}
             size="sm"
             className="h-7 px-2.5 text-xs"
-            onClick={() => setViewMode('details')}
+            onClick={() => {
+              store.setProjectList({...store.projectList, viewMode: EnumViewMode.details.value});
+              setViewMode(EnumViewMode.details.value)
+            }}
           >
             Details
           </Button>
@@ -212,16 +230,16 @@ function RouteComponent() {
     <div className={"divContent"}>
       <PageTitle title={<div>Project List</div>} showSeparator={false}/>
 
-      {(dataListQuery.isPending || ((viewMode === 'gantt' || viewMode === 'details') && dataGanttQuery.isPending)) && <div className={"h-full w-full flex"}>
+      {(dataListQuery.isPending && dataGanttQuery.isPending) && <div className={"h-full w-full flex"}>
         <SkeTable/>
       </div>}
 
-      {(dataListQuery.isError || ((viewMode === 'gantt' || viewMode === 'details') && dataGanttQuery.isError)) &&
+      {((dataListQuery.isError) && dataGanttQuery.isError) &&
         <div className={"text-lg text-destructive"}>Error: {dataListQuery?.error?.message || dataGanttQuery?.error?.message}</div>}
 
-      {(((viewMode === 'table' || viewMode === 'card') && dataListQuery.isSuccess) || ((viewMode === 'gantt' || viewMode === 'details') && dataGanttQuery.isSuccess)) && (
+      {dataGanttQuery.isSuccess && (
         <div className="bg-card p-2 flex flex-col gap-2">
-          {viewMode === 'table' && (
+          {viewMode === EnumViewMode.table.value && (
             <DataTableView
               data={dataListQuery?.data}
               onEditClicked={onDataPut}
@@ -232,7 +250,7 @@ function RouteComponent() {
             />
           )}
           
-          {viewMode === 'gantt' && (
+          {viewMode === EnumViewMode.gantt.value && (
             <ProjectGanttView
               data={dataGanttQuery?.data}
               onEditClicked={onDataPut}
@@ -243,7 +261,7 @@ function RouteComponent() {
             />
           )}
           
-          {viewMode === 'details' && (
+          {viewMode === EnumViewMode.details.value && (
             <ProjectGanttViewDetails
               data={dataGanttQuery?.data}
               onEditClicked={onDataPut}
@@ -254,7 +272,7 @@ function RouteComponent() {
             />
           )}
           
-          {viewMode === 'card' && (
+          {viewMode === EnumViewMode.card.value && (
             <div className="space-y-4">
               <div className="flex justify-end">
                 <ViewAddItem/>

@@ -1,27 +1,35 @@
 import {create} from "zustand/index";
 import {APP_CONFIG} from "@/constants/config";
 import {persist} from "zustand/middleware";
-import {
-  EMPLOYEE_FILE_TYPE,
-  EMPLOYEE_RANK_COMPLIANCE_DOC,
-  EMPLOYEE_TYPE,
-  RANK_HEALTH_OH_IH,
-  RANK_HEALTH_TYPE,
-  REPORT_TYPE
-} from "@/constants/app-enum";
-import {date_to_string} from "@/lib/my-utils";
-
-export const defaultStore = {
-}
+import { EnumViewMode } from "@/constants/app-enum";
 
 type Store = {
+  projectList: {
+    viewMode: string;
+    pageView: number;
+  },
+  setProjectList: (projectList: any) => void;
+
   resetAll: () => void;
+}
+
+export const defaultStore = {
+  projectList: {
+    viewMode: EnumViewMode.details.value,
+    pageView: 10,
+  },
 }
 
 export const useAppStore = create<Store>()(
   persist(
     (set) => ({
+      projectList: defaultStore.projectList,
+      setProjectList: (projectList: any) => set({
+        projectList
+      }),
+
       resetAll: () => set({
+        projectList: defaultStore.projectList
       }),
     }),
     {

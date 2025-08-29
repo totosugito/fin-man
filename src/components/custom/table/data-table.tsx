@@ -26,8 +26,12 @@ interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   pinned?: {
     withBorder?: boolean
   },
+  isStickyHeader?: boolean; // Show/hide sticky header
   styles?: {
-    container: {
+    container?: {
+      default?: string,
+    }
+    TableHeader?: {
       default?: string,
     }
     TableHead?: {
@@ -49,6 +53,7 @@ export function DataTable<TData>({
                                    totalRowCount,
                                    paginationData,
                                    pinned,
+                                   isStickyHeader = true,
                                    styles,
                                    ...props
                                  }: DataTableProps<TData> & { pageSizeOptions?: number[] }) {
@@ -56,23 +61,23 @@ export function DataTable<TData>({
 
   return (
     <div
-      className={cn("flex w-full flex-col gap-2 overflow-hidden", className)}
+      className={cn("flex w-full flex-col gap-2 overflow-hidden", "[&_td]:align-top", className)}
       {...props}
     >
       {children}
-      <div className={cn("w-full overflow-hidden", styles?.container?.default)}>
-        <Table className="w-full"
+      <div className={cn("w-full overflow-hidden", isStickyHeader ? "[&>div]:max-h-[80vh]" : "", styles?.container?.default)}>
+        <Table className="[&_td]:border-border [&_th]:border-border border-separate border-spacing-0 [&_tfoot_td]:border-t [&_th]:border-b [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b"
         style={{
           // width: table.getCenterTotalSize(),
           }}
         >
-          <TableHeader className="w-full">
+          <TableHeader className={cn("w-full", isStickyHeader ? "sticky top-0 z-10 backdrop-blur-xs" : "", styles?.TableHeader?.default)}>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="">
                 {/* Row Number Header */}
                 {showRowNumbers && (
                   <TableHead
-                    className={cn("bg-[#fafafa] dark:bg-[#28313e] py-1 px-2 border h-10 w-12 text-center", styles?.TableHead?.default)}
+                    className={cn("bg-[#fafafa]/90 dark:bg-[#28313e]/90 py-0 px-2 border w-12 text-center", styles?.TableHead?.default)}
                   >
                     #
                   </TableHead>
@@ -80,7 +85,7 @@ export function DataTable<TData>({
                 {headerGroup.headers.map((header) => {
                     return (
                       <TableHead
-                        className={cn("bg-[#fafafa] dark:bg-[#28313e] py-1 px-2 border h-10 relative group", styles?.TableHead?.default)}
+                        className={cn("bg-[#fafafa]/90 dark:bg-[#28313e]/90 py-0 px-2 border relative group", styles?.TableHead?.default)}
                         key={header.id}
                         colSpan={header.colSpan}
                         style={{

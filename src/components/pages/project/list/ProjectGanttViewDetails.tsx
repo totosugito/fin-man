@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { IoMenu } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import { Text, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CurrencyList } from "@/constants/app-enum";
 import { Badge } from "@/components/ui/badge";
+import { date_to_string } from "@/lib/my-utils";
 
 type Project = {
     id: string;
@@ -78,7 +79,7 @@ const GanttCellDetails: React.FC<{
                 "flex items-center justify-center text-sm text-muted-foreground",
                 isCurrentMonth && "bg-blue-50 dark:bg-blue-950"
             )}
-            style={{ height: `${minHeight}px` }}>
+                style={{ height: `${minHeight}px` }}>
                 <span className="text-muted-foreground">No events</span>
             </div>
         );
@@ -201,7 +202,7 @@ const GanttCellDetails: React.FC<{
             "overflow-hidden",
             isCurrentMonth && "bg-blue-50 dark:bg-blue-950"
         )}
-        style={{ height: `${dynamicHeight}px` }}>
+            style={{ height: `${dynamicHeight}px` }}>
             <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
                 <DataTable table={table} className="text-sm">
                 </DataTable>
@@ -221,20 +222,20 @@ const generateMonthHeaders = () => {
     for (let i = 6; i > 0; i--) {
         const date = new Date(currentYear, currentMonth - i, 1);
         const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        const label = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        const label = date_to_string(date, 'yyyy-MM');
         months.push({ yearMonth, label, isCurrentMonth: false });
     }
 
     // Current month
     const currentYearMonth = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-    const currentLabel = currentDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    const currentLabel = date_to_string(currentDate, 'yyyy-MM');
     months.push({ yearMonth: currentYearMonth, label: currentLabel, isCurrentMonth: true });
 
     // Next 6 months
     for (let i = 1; i <= 6; i++) {
         const date = new Date(currentYear, currentMonth + i, 1);
         const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        const label = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        const label = date_to_string(date, 'yyyy-MM');
         months.push({ yearMonth, label, isCurrentMonth: false });
     }
 
@@ -271,13 +272,13 @@ export const ProjectGanttViewDetails = ({
                 enableSorting: true,
                 header: ({ column }) => (
                     <div className={"flex justify-center"}>
-                    <DataTableColumnHeader column={column} title={"Project"} />
+                        <DataTableColumnHeader column={column} title={"Project"} />
                     </div>
                 ),
                 cell: ({ cell, row }) => (
                     <div className="px-2 align-top" style={{ verticalAlign: 'top' }}>
-                        <div className={"hover:underline cursor-pointer font-semibold text-sm"} 
-                             onClick={() => onShowDetail(row.original?.id)}>
+                        <div className={"hover:underline cursor-pointer font-semibold text-sm"}
+                            onClick={() => onShowDetail(row.original?.id)}>
                             {cell.getValue() as string}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">
@@ -308,7 +309,6 @@ export const ProjectGanttViewDetails = ({
                     month.isCurrentMonth && "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-100"
                 )}>
                     <div className="text-base">{month.label}</div>
-                    <div className="text-xs text-muted-foreground font-normal">Events Detail</div>
                 </div>
             ),
             cell: ({ row }) => {
@@ -378,7 +378,7 @@ export const ProjectGanttViewDetails = ({
 
     return (
         <div className="h-full overflow-y-auto" style={{ height: 'calc(100vh - 130px)' }}>
-            <DataTable table={table} className="[&_td]:align-top">
+            <DataTable table={table}>
                 <DataTableFilter table={table}>
                     {toolbarContent}
                 </DataTableFilter>
