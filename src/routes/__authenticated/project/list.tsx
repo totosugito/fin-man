@@ -12,12 +12,14 @@ import {showNotifError, showNotifSuccess} from "@/lib/show-notif";
 import {DialogModal, DialogModalForm} from "@/components/custom/components";
 import {useState} from "react";
 import {ModalFormProps, ModalProps} from "@/types/dialog";
-import {ObjToOptionList} from "@/lib/my-utils";
+import {date_to_string, ObjToOptionList, string_to_date} from "@/lib/my-utils";
 import {EnumProjectStatus, EnumProjectType} from "backend/src/db/schema";
 import {z} from "zod";
 import {AppRoute} from "@/constants/api";
 import { defaultStore, useAppStore } from '@/stores/useAppStore';
-import { EnumViewMode } from '@/constants/app-enum';
+import { CurrencyList, EnumViewMode } from '@/constants/app-enum';
+import { formProjectEvent, FormProjectEvent } from '@/components/pages/project/detail';
+import { useProjectEventPut } from '@/service/project-event';
 
 
 export const Route = createFileRoute('/__authenticated/project/list')({
@@ -39,6 +41,7 @@ function RouteComponent() {
   const dataCreateMutation = useProjectCreate();
   const dataDeleteMutation = useProjectDelete();
   const dataPutMutation = useProjectPut();
+  const dataPutEventMutation = useProjectEventPut();
 
   const [confirmationCreate, setConfirmationCreate] = useState<ModalFormProps | null>(null);
   const [confirmationPut, setConfirmationPut] = useState<ModalFormProps | null>(null);
@@ -86,7 +89,8 @@ function RouteComponent() {
   });
 
   const isLoading = () => {
-    return (dataListQuery.isPending || dataGanttQuery.isPending || dataCreateMutation.isPending || dataDeleteMutation.isPending || dataPutMutation.isPending);
+    return (dataListQuery.isPending || dataGanttQuery.isPending || dataCreateMutation.isPending || 
+      dataDeleteMutation.isPending || dataPutMutation.isPending || dataPutEventMutation.isPending);
   }
 
   const onDataCreated = () => {
@@ -164,6 +168,63 @@ function RouteComponent() {
       },
     });
   }
+
+    const onDataPutEvent = (item: any) => {
+      const child = formProjectEvent.form;
+      const schema = formProjectEvent.schema;
+      const formHtml = <FormProjectEvent/>;
+      
+      let defaultValue = {
+          ...item,
+          eventType: item?.eventType,
+          transactionType: item?.cost?.transactionType ?? "expense",
+          budgetCurrency: item?.cost?.budgetCurrency ?? CurrencyList.IDR.value,
+          budget: Number(item?.cost?.budget) ?? 0,
+          actualCurrency: item?.cost?.actualCurrency ?? CurrencyList.IDR.value,
+          actual: Number(item?.cost?.actual) ?? 0,
+          hasActual: item?.cost?.hasActual ?? false,
+          actualCreatedAt: string_to_date(item?.cost?.actualCreatedAt) ?? new Date(),
+        };
+      
+      setConfirmationPut({
+        title: "Update Project Event",
+        desc: "Please fill the form below to update project event.",
+        defaultValue: defaultValue,
+        child: child,
+        schema: schema,
+        content: formHtml,
+        textConfirm: "Update",
+        onCancelClick: () => setConfirmationPut(null),
+        onConfirmClick: (body: Record<string, any>) => {
+          const newBody = {
+              name: body?.name ?? "",
+              description: body?.description ?? "",
+              eventType: body?.eventType,
+              eventCost: {
+                transactionType: body?.transactionType ?? "expense",
+                budgetCurrency: body?.budgetCurrency ?? CurrencyList.IDR.value,
+                budget: String(body?.budget) ?? "0",
+                actualCurrency: body?.actualCurrency ?? CurrencyList.IDR.value,
+                actual: String(body?.actual) ?? "0",
+                hasActual: body?.hasActual ?? false,
+                actualCreatedAt: date_to_string(body?.actualCreatedAt ?? new Date()),
+              },
+            };
+          dataPutEventMutation.mutate({id: item?.id, body: newBody}, {
+            onSuccess: async () => {
+              await queryClient.invalidateQueries({queryKey: ['project-list', sort, order]});
+              await queryClient.invalidateQueries({queryKey: ['project-gantt-view']});
+              
+              showNotifSuccess({message: "Project event updated successfully"});
+              setConfirmationPut(null);
+            },
+            onError: (error: any) => {
+              showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message})
+            },
+          });
+        },
+      });
+    }
 
   const onShowDetail = (id: string) => {
     navigate({to: AppRoute.project.detail, params: {id: id}}).then(() => {});
@@ -258,6 +319,7 @@ function RouteComponent() {
               onShowDetail={onShowDetail}
               loading={isLoading()}
               toolbarContent={<ViewAddItem/>}
+              onEditEventClicked={onDataPutEvent}
             />
           )}
           
@@ -269,6 +331,7 @@ function RouteComponent() {
               onShowDetail={onShowDetail}
               loading={isLoading()}
               toolbarContent={<ViewAddItem/>}
+              onEditEventClicked={onDataPutEvent}
             />
           )}
           

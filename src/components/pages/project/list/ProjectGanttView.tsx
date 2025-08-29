@@ -62,8 +62,9 @@ const EventsPopoverTable: React.FC<{
   projectName: string;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onEditEventClicked: (item: any) => void;
   children: React.ReactNode;
-}> = ({ projectId, yearMonth, projectName, isOpen, onOpenChange, children }) => {
+}> = ({ projectId, yearMonth, projectName, isOpen, onOpenChange, onEditEventClicked, children }) => {
   const { t } = useTranslation();
   
   const { data: eventsData, isLoading } = useProjectEventsByYearMonth({
@@ -83,7 +84,7 @@ const EventsPopoverTable: React.FC<{
         <DataTableColumnHeader column={column} title={"Event Name"} className={"justify-start"} />
       ),
       cell: ({ cell, row }) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 hover:bg-accent/50 cursor-pointer p-1" onClick={()=>onEditEventClicked(row.original)}>
           {row.original?.eventType === 'folder' ? (
             <FileText className="h-4 w-4 text-blue-500" />
           ) : (
@@ -91,9 +92,6 @@ const EventsPopoverTable: React.FC<{
           )}
           <div>
             <div className="font-medium">{cell.getValue() as string}</div>
-            {row.original?.description && (
-              <div className="text-xs text-muted-foreground">{row.original.description}</div>
-            )}
           </div>
         </div>
       ),
@@ -105,7 +103,7 @@ const EventsPopoverTable: React.FC<{
       },
     },
     {
-      accessorKey: "transactionType",
+      accessorKey: "cost.transactionType",
       size: 120,
       enableSorting: true,
       header: ({ column }) => (
@@ -124,16 +122,16 @@ const EventsPopoverTable: React.FC<{
       },
     },
     {
-      accessorKey: "budget",
+      accessorKey: "cost.budget",
       size: 120,
       enableSorting: false,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={"Budget"} className={"justify-end"} />
       ),
       cell: ({ row }) => {
-        const budget = row.original?.budget;
-        const currency = row.original?.budgetCurrency;
-        const transactionType = row.original?.transactionType;
+        const budget = row.original?.cost?.budget;
+        const currency = row.original?.cost?.budgetCurrency;
+        const transactionType = row.original?.cost?.transactionType;
         
         if (!budget || !currency) return <div className="text-right text-xs text-muted-foreground">-</div>;
         
@@ -152,17 +150,17 @@ const EventsPopoverTable: React.FC<{
       },
     },
     {
-      accessorKey: "actual",
+      accessorKey: "cost.actual",
       size: 120,
       enableSorting: false,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={"Actual"} className={"justify-end"} />
       ),
       cell: ({ row }) => {
-        const actual = row.original?.actual;
-        const currency = row.original?.actualCurrency;
-        const hasActual = row.original?.hasActual;
-        const transactionType = row.original?.transactionType;
+        const actual = row.original?.cost?.actual;
+        const currency = row.original?.cost?.actualCurrency;
+        const hasActual = row.original?.cost?.hasActual;
+        const transactionType = row.original?.cost?.transactionType;
         
         if (!hasActual || !actual || !currency) {
           return <div className="text-right text-xs text-muted-foreground">-</div>;
@@ -183,7 +181,7 @@ const EventsPopoverTable: React.FC<{
       },
     },
     {
-      accessorKey: "actualCreatedAt",
+      accessorKey: "cost.actualCreatedAt",
       size: 120,
       enableSorting: true,
       header: ({ column }) => (
@@ -238,7 +236,7 @@ const EventsPopoverTable: React.FC<{
           ) : (
             <div className="max-h-96 overflow-auto">
               <DataTable table={table}>
-                <DataTableFilter table={table} />
+                {/* <DataTableFilter table={table} /> */}
               </DataTable>
             </div>
           )}
@@ -255,7 +253,8 @@ const GanttCell: React.FC<{
   projectId: string;
   projectName: string;
   yearMonth: string;
-}> = ({ monthData, isCurrentMonth = false, projectId, projectName, yearMonth }) => {
+  onEditEventClicked: (item: any) => void
+}> = ({ monthData, isCurrentMonth = false, projectId, projectName, yearMonth, onEditEventClicked }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   
   if (!monthData || !monthData.cost || Object.keys(monthData.cost).length === 0) {
@@ -320,6 +319,7 @@ const GanttCell: React.FC<{
       projectName={projectName}
       isOpen={isPopoverOpen}
       onOpenChange={setIsPopoverOpen}
+      onEditEventClicked={onEditEventClicked}
     >
       <div 
         className={cn(
@@ -416,6 +416,7 @@ type Props = {
   onDeleteClicked: (item: any) => void;
   onEditClicked: (item: any) => void;
   onShowDetail: (id: string) => void;
+  onEditEventClicked: (event: any) => void;
   toolbarContent?: React.ReactNode;
 }
 
@@ -426,6 +427,7 @@ export const ProjectGanttView = ({
   onEditClicked,
   toolbarContent,
   onShowDetail,
+  onEditEventClicked
 }: Props) => {
   const { t } = useTranslation();
   const monthHeaders = generateMonthHeaders();
@@ -488,6 +490,7 @@ export const ProjectGanttView = ({
               projectId={row.original.id}
               projectName={row.original.name}
               yearMonth={month.yearMonth}
+              onEditEventClicked={onEditEventClicked}
             />
           </div>
         );

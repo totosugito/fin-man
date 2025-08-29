@@ -18,7 +18,7 @@ const projectEventsRoutes: FastifyPluginAsyncTypebox = async (app) => {
         id: Type.String({ format: 'uuid', description: 'Project ID' })
       }),
       querystring: Type.Object({
-        yearMonth: Type.String({ 
+        yearMonth: Type.String({
           pattern: '^\\d{4}-\\d{2}$',
           description: 'Year-month in format YYYY-MM (e.g., 2025-01)'
         }),
@@ -54,13 +54,15 @@ const projectEventsRoutes: FastifyPluginAsyncTypebox = async (app) => {
             createdAt: Type.String({ format: 'date-time' }),
             updatedAt: Type.String({ format: 'date-time' }),
             // Cost information
-            transactionType: Type.Union([Type.String({ enum: Object.values(EnumTransactionType) }), Type.Null()]),
-            budgetCurrency: Type.Union([Type.String(), Type.Null()]),
-            budget: Type.Union([Type.String(), Type.Null()]),
-            actualCurrency: Type.Union([Type.String(), Type.Null()]),
-            actual: Type.Union([Type.String(), Type.Null()]),
-            hasActual: Type.Union([Type.Boolean(), Type.Null()]),
-            actualCreatedAt: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+            cost: Type.Object({
+              transactionType: Type.Union([Type.String({ enum: Object.values(EnumTransactionType) }), Type.Null()]),
+              budgetCurrency: Type.Union([Type.String(), Type.Null()]),
+              budget: Type.Union([Type.String(), Type.Null()]),
+              actualCurrency: Type.Union([Type.String(), Type.Null()]),
+              actual: Type.Union([Type.String(), Type.Null()]),
+              hasActual: Type.Union([Type.Boolean(), Type.Null()]),
+              actualCreatedAt: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+            })
           })),
           meta: Type.Object({
             total: Type.Number(),
@@ -170,10 +172,10 @@ const projectEventsRoutes: FastifyPluginAsyncTypebox = async (app) => {
 
       // Build where conditions
       const conditions = [];
-      
+
       // Filter by project ID
       conditions.push(eq(projectEvents.projectId, projectId));
-      
+
       // Filter by year-month range on actualCreatedAt
       conditions.push(
         and(
@@ -262,18 +264,20 @@ const projectEventsRoutes: FastifyPluginAsyncTypebox = async (app) => {
           ...event,
           createdAt: event.createdAt?.toISOString() ?? new Date().toISOString(),
           updatedAt: event.updatedAt?.toISOString() ?? new Date().toISOString(),
-          actualCreatedAt: event.actualCreatedAt?.toISOString() ?? null,
           sortOrder: event.sortOrder ?? 0,
           path: event.path ?? '',
           depth: event.depth ?? 0,
           parentId: event.parentId ?? null,
           extra: event.extra ?? {},
-          transactionType: event.transactionType ?? null,
-          budgetCurrency: event.budgetCurrency ?? null,
-          budget: event.budget ?? null,
-          actualCurrency: event.actualCurrency ?? null,
-          actual: event.actual ?? null,
-          hasActual: event.hasActual ?? null,
+          cost: {
+            transactionType: event.transactionType ?? null,
+            budgetCurrency: event.budgetCurrency ?? null,
+            budget: event.budget ?? null,
+            actualCurrency: event.actualCurrency ?? null,
+            actual: event.actual ?? null,
+            hasActual: event.hasActual ?? null,
+            actualCreatedAt: event.actualCreatedAt?.toISOString() ?? null,
+          }
         })),
         meta: {
           total,

@@ -60,13 +60,15 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
                 name: Type.String(),
                 description: Type.Union([Type.String(), Type.Null()]),
                 eventType: Type.String({ enum: Object.values(EnumProjectEventType) }),
-                transactionType: Type.String({ enum: Object.values(EnumTransactionType) }),
-                budgetCurrency: Type.Union([Type.String(), Type.Null()]),
-                budget: Type.Union([Type.String(), Type.Null()]),
-                actualCurrency: Type.Union([Type.String(), Type.Null()]),
-                actual: Type.Union([Type.String(), Type.Null()]),
-                hasActual: Type.Boolean(),
-                actualCreatedAt: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+                cost: Type.Object({
+                  transactionType: Type.String({ enum: Object.values(EnumTransactionType) }),
+                  budgetCurrency: Type.Union([Type.String(), Type.Null()]),
+                  budget: Type.Union([Type.String(), Type.Null()]),
+                  actualCurrency: Type.Union([Type.String(), Type.Null()]),
+                  actual: Type.Union([Type.String(), Type.Null()]),
+                  hasActual: Type.Boolean(),
+                  actualCreatedAt: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+                }),
                 path: Type.String()
               })))
             }))
@@ -261,13 +263,15 @@ const ganttViewRoutes: FastifyPluginAsyncTypebox = async (app) => {
                   name: event.eventName,
                   description: event.eventDescription,
                   eventType: event.eventType,
-                  transactionType: event.transactionType,
-                  budgetCurrency: event.budgetCurrency,
-                  budget: event.budget,
-                  actualCurrency: event.actualCurrency,
-                  actual: event.actual,
-                  hasActual: event.hasActual,
-                  actualCreatedAt: event.actualCreatedAt,
+                  cost: {
+                    transactionType: event.transactionType,
+                    budgetCurrency: event.budgetCurrency,
+                    budget: event.budget,
+                    actualCurrency: event.actualCurrency,
+                    actual: event.actual,
+                    hasActual: event.hasActual,
+                    actualCreatedAt: event.actualCreatedAt,
+                  },
                   path: event.eventPath
                 });
               }

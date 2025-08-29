@@ -1,22 +1,21 @@
-import {createFileRoute} from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import * as React from 'react';
-import {useTranslation} from 'react-i18next';
-import {useQueryClient} from '@tanstack/react-query';
-import {useProjectDetail} from '@/service/project';
-import {SkeTable} from '@/components/custom/skeleton';
-import {TableEventDetail, FormProject, FormProjectEvent} from '@/components/pages/project/detail';
-import {CurrencyCard} from '@/components/pages/project/detail/CurrencyCard';
-import {useProjectEventCreate, useProjectEventDelete, useProjectEventPut} from '@/service/project-event';
-import {showNotifError, showNotifSuccess} from '@/lib/show-notif';
-import {DialogModal, DialogModalForm} from '@/components/custom/components';
-import {ModalFormProps, ModalProps} from '@/types/dialog';
-import {z} from 'zod';
-import {EnumProjectEventType} from 'backend/src/db/schema';
-import {ObjToOptionListValue, ObjToOptionList, string_to_date, date_to_string} from '@/lib/my-utils';
-import {CurrencyList} from '@/constants/app-enum';
-import {PageTitle} from '@/components/app';
-import {useEffect, useState} from "react";
-import {EnumTransactionType} from "backend/src/db/schema/index";
+import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
+import { useProjectDetail } from '@/service/project';
+import { SkeTable } from '@/components/custom/skeleton';
+import { TableEventDetail, FormProject, FormProjectEvent, formProjectEvent } from '@/components/pages/project/detail';
+import { CurrencyCard } from '@/components/pages/project/detail/CurrencyCard';
+import { useProjectEventCreate, useProjectEventDelete, useProjectEventPut } from '@/service/project-event';
+import { showNotifError, showNotifSuccess } from '@/lib/show-notif';
+import { DialogModal, DialogModalForm } from '@/components/custom/components';
+import { ModalFormProps, ModalProps } from '@/types/dialog';
+import { z } from 'zod';
+import { EnumProjectEventType } from 'backend/src/db/schema';
+import { string_to_date, date_to_string } from '@/lib/my-utils';
+import { CurrencyList } from '@/constants/app-enum';
+import { PageTitle } from '@/components/app';
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute('/__authenticated/project/$id')({
   component: RouteComponent,
@@ -24,9 +23,9 @@ export const Route = createFileRoute('/__authenticated/project/$id')({
 
 
 function RouteComponent() {
-  const {t} = useTranslation()
+  const { t } = useTranslation()
   const queryClient = useQueryClient();
-  const {id} = Route.useParams();
+  const { id } = Route.useParams();
 
   const [confirmationCreate, setConfirmationCreate] = useState<ModalFormProps | null>(null);
   const [confirmationPut, setConfirmationPut] = useState<ModalFormProps | null>(null);
@@ -66,87 +65,6 @@ function RouteComponent() {
     }
   };
 
-  const optionsCurrency = ObjToOptionListValue(CurrencyList);
-  const formProjectEvent = {
-    form: {
-      name: {
-        type: "text",
-        name: "name",
-        label: "Name",
-        placeholder: "",
-      },
-      description: {
-        type: "textarea",
-        name: "description",
-        label: "Description",
-        placeholder: "",
-      },
-      transactionType: {
-        type: "select",
-        name: "transactionType",
-        label: "Transaction Type",
-        options: ObjToOptionList(EnumTransactionType).filter(option => option.value !== 'folder'),
-      },
-      budgetCurrency: {
-        type: "select",
-        name: "budgetCurrency",
-        label: "Budget Currency",
-        options: optionsCurrency,
-      },
-      budget: {
-        type: "number",
-        name: "budget",
-        label: "Budget Amount",
-        placeholder: "",
-      },
-      hasActual: {
-        type: "checkbox",
-        name: "hasActual",
-        label: "Has Actual Data",
-      },
-      actualCreatedAt: {
-        type: "date",
-        name: "actualCreatedAt",
-        label: "Actual Created At",
-        placeholder: "",
-      },
-      actualCurrency: {
-        type: "select",
-        name: "actualCurrency",
-        label: "Actual Currency",
-        options: optionsCurrency,
-      },
-      actual: {
-        type: "number",
-        name: "actual",
-        label: "Actual Amount",
-        placeholder: "",
-      },
-    },
-    schema: {
-      name: z.string().min(1, "Name is required"),
-      description: z.string().optional(),
-      transactionType: z.enum(["income", "expense"]),
-      budgetCurrency: z.string().min(1, "Budget Currency is required"),
-      budget: z.number().min(0, "Budget amount must be positive"),
-      actualCurrency: z.string().min(1, "Actual Currency is required"),
-      actual: z.number().min(0, "Actual amount must be positive"),
-      hasActual: z.boolean().optional(),
-      actualCreatedAt: z.date().optional(),
-    },
-    defaultValue: {
-      name: "",
-      description: "",
-      transactionType: "expense" as const,
-      budgetCurrency: CurrencyList.IDR.value,
-      budget: 0,
-      actualCurrency: CurrencyList.IDR.value,
-      actual: 0,
-      hasActual: false,
-      actualCreatedAt: new Date(),
-    }
-  };
-
   const isLoading = () => {
     return (projectDetailQuery.isPending || dataCreateMutation.isPending || dataDeleteMutation.isPending);
   }
@@ -164,7 +82,7 @@ function RouteComponent() {
       defaultValue: formProject.defaultValue,
       child: formProject.form,
       schema: formProject.schema,
-      content: <FormProject/>,
+      content: <FormProject />,
       onCancelClick: () => setConfirmationCreate(null),
       onConfirmClick: (body: Record<string, any>) => {
         const newBody = {
@@ -174,14 +92,14 @@ function RouteComponent() {
           sortOrder: 0,
           ...body
         }
-        dataCreateMutation.mutate({body: newBody}, {
+        dataCreateMutation.mutate({ body: newBody }, {
           onSuccess: async () => {
-            await queryClient.invalidateQueries({queryKey: ['project-detail', id]});
-            showNotifSuccess({message: "Project Event created successfully"});
+            await queryClient.invalidateQueries({ queryKey: ['project-detail', id] });
+            showNotifSuccess({ message: "Project Event created successfully" });
             setConfirmationCreate(null);
           },
           onError: (error: any) => {
-            showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message})
+            showNotifError({ message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message })
           },
         });
       },
@@ -195,7 +113,7 @@ function RouteComponent() {
       defaultValue: formProjectEvent.defaultValue,
       child: formProjectEvent.form,
       schema: formProjectEvent.schema,
-      content: <FormProjectEvent/>,
+      content: <FormProjectEvent />,
       onCancelClick: () => setConfirmationCreate(null),
       onConfirmClick: (body: Record<string, any>) => {
         const newBody = {
@@ -215,14 +133,14 @@ function RouteComponent() {
             actualCreatedAt: date_to_string(body?.actualCreatedAt ?? new Date()),
           }
         }
-        dataCreateMutation.mutate({body: newBody}, {
+        dataCreateMutation.mutate({ body: newBody }, {
           onSuccess: async () => {
-            await queryClient.invalidateQueries({queryKey: ['project-detail', id]});
-            showNotifSuccess({message: "Project Event created successfully"});
+            await queryClient.invalidateQueries({ queryKey: ['project-detail', id] });
+            showNotifSuccess({ message: "Project Event created successfully" });
             setConfirmationCreate(null);
           },
           onError: (error: any) => {
-            showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message})
+            showNotifError({ message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message })
           },
         });
       },
@@ -233,8 +151,8 @@ function RouteComponent() {
     const isFolder = item?.eventType === EnumProjectEventType.folder;
     const child = isFolder ? formProject.form : formProjectEvent.form;
     const schema = isFolder ? formProject.schema : formProjectEvent.schema;
-    const formHtml = isFolder ? <FormProject/> : <FormProjectEvent/>;
-    
+    const formHtml = isFolder ? <FormProject /> : <FormProjectEvent />;
+
     let defaultValue;
     if (isFolder) {
       defaultValue = item;
@@ -252,7 +170,7 @@ function RouteComponent() {
         actualCreatedAt: string_to_date(item?.cost?.actualCreatedAt) ?? new Date(),
       };
     }
-    
+
     setConfirmationPut({
       title: "Update Project Event",
       desc: "Please fill the form below to update project event.",
@@ -278,14 +196,14 @@ function RouteComponent() {
               actualCreatedAt: date_to_string(body?.actualCreatedAt ?? new Date()),
             },
           };
-        dataPutMutation.mutate({id: item?.id, body: newBody}, {
+        dataPutMutation.mutate({ id: item?.id, body: newBody }, {
           onSuccess: async () => {
-            await queryClient.invalidateQueries({queryKey: ['project-detail', id]});
-            showNotifSuccess({message: "Project event updated successfully"});
+            await queryClient.invalidateQueries({ queryKey: ['project-detail', id] });
+            showNotifSuccess({ message: "Project event updated successfully" });
             setConfirmationPut(null);
           },
           onError: (error: any) => {
-            showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message})
+            showNotifError({ message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message })
           },
         });
       },
@@ -302,13 +220,13 @@ function RouteComponent() {
       textCancel: "Cancel",
       onConfirmClick: () => {
         dataDeleteMutation.mutate(
-          {id: item?.id},
+          { id: item?.id },
           {
             onSuccess: async () => {
-              await queryClient.invalidateQueries({queryKey: ['project-detail', id]});
-              showNotifSuccess({message: "Project event deleted successfully"});
+              await queryClient.invalidateQueries({ queryKey: ['project-detail', id] });
+              showNotifSuccess({ message: "Project event deleted successfully" });
             },
-            onError: (error: any) => showNotifError({message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message}),
+            onError: (error: any) => showNotifError({ message: (error?.response?.data?.message || error?.response?.data?.error) ?? error?.message }),
           }
         );
         setConfirmationDelete(null);
@@ -321,9 +239,9 @@ function RouteComponent() {
     <div className={"divContent"}>
       {data &&
         <PageTitle title={<div>{data?.name ?? ""}</div>} description={<div>{projectDetailQuery.data?.description}</div>}
-                   showSeparator={false}/>}
+          showSeparator={false} />}
       {(projectDetailQuery.isPending) && <div className={"h-full w-full flex"}>
-        <SkeTable/>
+        <SkeTable />
       </div>}
 
       {projectDetailQuery.isError &&
@@ -358,9 +276,9 @@ function RouteComponent() {
         </div>
       }
 
-      {confirmationCreate && <DialogModalForm modal={confirmationCreate}/>}
-      {confirmationPut && <DialogModalForm modal={confirmationPut}/>}
-      {confirmationDelete && <DialogModal modal={confirmationDelete} variantSubmit={"destructive"}/>}
+      {confirmationCreate && <DialogModalForm modal={confirmationCreate} />}
+      {confirmationPut && <DialogModalForm modal={confirmationPut} />}
+      {confirmationDelete && <DialogModal modal={confirmationDelete} variantSubmit={"destructive"} />}
     </div>
   )
 }

@@ -70,7 +70,8 @@ const GanttCellDetails: React.FC<{
     projectId: string;
     projectName: string;
     yearMonth: string;
-}> = ({ monthData, isCurrentMonth = false, projectId, projectName, yearMonth }) => {
+    onEventEdit?: (event: any) => void;
+}> = ({ monthData, isCurrentMonth = false, projectId, projectName, yearMonth, onEventEdit }) => {
     const { t } = useTranslation();
 
     if (!monthData || !monthData.events || monthData.events.length === 0) {
@@ -80,7 +81,8 @@ const GanttCellDetails: React.FC<{
                 "flex items-center justify-center text-sm text-muted-foreground",
                 isCurrentMonth && "bg-blue-50 dark:bg-blue-950"
             )}
-                style={{ height: `${minHeight}px` }}>
+                style={{ height: `${minHeight}px` }}
+                >
                 <span className="text-muted-foreground">No events</span>
             </div>
         );
@@ -89,7 +91,7 @@ const GanttCellDetails: React.FC<{
     const events = monthData.events;
 
     const eventColumns = useMemo<ColumnDef<any>[]>(() => [
-        createRowNumberColumn({ accessorKey: "rowNum", id: "rowNum" }), 
+        createRowNumberColumn({ accessorKey: "rowNum", id: "rowNum" }),
         {
             accessorKey: "name",
             enableSorting: false,
@@ -97,7 +99,11 @@ const GanttCellDetails: React.FC<{
                 <div className="text-sm font-semibold">Event</div>
             ),
             cell: ({ cell, row }) => (
-                <div className="space-y-0.5">
+                <div
+                    className="space-y-0.5 cursor-pointer hover:bg-accent/50 p-2 rounded transition-colors"
+                    onClick={() => onEventEdit?.(row.original)}
+                    title="Click to edit event"
+                >
                     <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-gray-500 shrink-0" />
                         <div className="font-medium text-sm truncate" title={cell.getValue() as string}>
@@ -108,7 +114,7 @@ const GanttCellDetails: React.FC<{
                         variant={row.original?.transactionType === 'income' ? 'default' : 'destructive'}
                         className="text-[10px] px-2 py-0"
                     >
-                        {row.original?.transactionType}
+                        {row.original?.cost?.transactionType}
                     </Badge>
                 </div>
             ),
@@ -121,9 +127,9 @@ const GanttCellDetails: React.FC<{
                 <div className="text-sm font-semibold text-right">Budget</div>
             ),
             cell: ({ row }) => {
-                const budget = row.original?.budget;
-                const currency = row.original?.budgetCurrency;
-                const transactionType = row.original?.transactionType;
+                const budget = row.original?.cost?.budget;
+                const currency = row.original?.cost?.budgetCurrency;
+                const transactionType = row.original?.cost?.transactionType;
 
                 if (!budget || !currency) return <div className="text-right text-sm text-muted-foreground">-</div>;
 
@@ -151,10 +157,10 @@ const GanttCellDetails: React.FC<{
                 <div className="text-sm text-right">Actual</div>
             ),
             cell: ({ row }) => {
-                const actual = row.original?.actual;
-                const currency = row.original?.actualCurrency;
-                const hasActual = row.original?.hasActual;
-                const transactionType = row.original?.transactionType;
+                const actual = row.original?.cost?.actual;
+                const currency = row.original?.cost?.actualCurrency;
+                const hasActual = row.original?.cost?.hasActual;
+                const transactionType = row.original?.cost?.transactionType;
 
                 if (!hasActual || !actual || !currency) {
                     return <div className="text-right text-sm text-muted-foreground">-</div>;
@@ -176,7 +182,7 @@ const GanttCellDetails: React.FC<{
                 );
             },
         },
-    ], []);
+    ], [onEventEdit]);
 
     const { table } = useDataTable({
         data: events,
@@ -191,7 +197,7 @@ const GanttCellDetails: React.FC<{
 
     // Calculate dynamic height based on content
     const maxRowsToShow = 5;
-    const rowHeight = 80; // Approximate height per row including padding
+    const rowHeight = 100; // Approximate height per row including padding
     const headerHeight = 40; // Height for table header
     const paddingHeight = 4; // Additional padding
     const actualRowCount = Math.min(events.length, maxRowsToShow);
@@ -201,16 +207,13 @@ const GanttCellDetails: React.FC<{
 
     return (
         <div className={cn(
-            "overflow-hidden",
+            "flex overflow-hidden h-full",
             isCurrentMonth && "bg-blue-50 dark:bg-blue-950"
         )}
-            style={{ height: `${dynamicHeight}px` }}>
-            <div 
-            className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800"
-            >
-                <DataTable table={table} className={cn("text-sm")}>
-                </DataTable>
-            </div>
+        // style={{ height: `${dynamicHeight}px` }}
+        >
+            <DataTable table={table} className={cn("")}>
+            </DataTable>
         </div>
     );
 };
@@ -253,6 +256,7 @@ type Props = {
     onEditClicked: (item: any) => void;
     onShowDetail: (id: string) => void;
     toolbarContent?: React.ReactNode;
+    onEditEventClicked: (item: any) => void;
 }
 
 export const ProjectGanttViewDetails = ({
@@ -262,6 +266,7 @@ export const ProjectGanttViewDetails = ({
     onEditClicked,
     toolbarContent,
     onShowDetail,
+    onEditEventClicked
 }: Props) => {
     const { t } = useTranslation();
     const monthHeaders = generateMonthHeaders();
@@ -320,13 +325,14 @@ export const ProjectGanttViewDetails = ({
                     (data) => data.yearMonth === month.yearMonth
                 );
                 return (
-                    <div className="w-full align-top" style={{ verticalAlign: 'top' }}>
+                    <div className="w-full h-full">
                         <GanttCellDetails
                             monthData={monthData}
                             isCurrentMonth={month.isCurrentMonth}
                             projectId={row.original.id}
                             projectName={row.original.name}
                             yearMonth={month.yearMonth}
+                            onEventEdit={onEditEventClicked}
                         />
                     </div>
                 );
