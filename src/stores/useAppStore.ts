@@ -15,7 +15,7 @@ type Store = {
 
 export const defaultStore = {
   projectList: {
-    viewMode: EnumViewMode.details.value,
+    viewMode: EnumViewMode.card.value,
     pageView: 10,
   },
 }

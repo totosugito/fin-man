@@ -14,7 +14,7 @@ export const schema = Type.Object({
   POSTGRES_PORT: Type.Number({ default: 5432 }),
   LOG_LEVEL: Type.Enum(LogLevel),
   HOST: Type.String({ default: 'localhost' }),
-  PORT: Type.Number({ default: 5150 }),
+  PORT: Type.Number({ default: 9091 }),
   FRONTEND_URL: Type.String({ default: 'http://localhost:5173' }),
   COOKIE_PREFIX: Type.String({ default: 'cookie' }),
   BETTER_AUTH_SECRET: Type.String({ default: 'secret' }),
