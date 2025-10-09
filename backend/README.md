@@ -1,25 +1,32 @@
-## A. DB PREPARATION
-### Create postgres user
+### 1. Create user DB
 ```
 psql -U postgres
-CREATE USER sicerdas WITH PASSWORD 'a';
-ALTER USER sicerdas WITH CREATEDB LOGIN;
-ALTER USER sicerdas WITH SUPERUSER;
+CREATE USER fin WITH PASSWORD 'man';
+ALTER USER fin WITH CREATEDB LOGIN;
+ALTER USER fin WITH SUPERUSER;
 ```
 
-### Create database and extension
-Create postgres user and create the database *fin_mot*
-Run the following commands to add ltree extension
+### 2. Create database and extension
+Create postgres user and create the database *fin_man*
+Run the following commands to add extensions
 ```
-psql -U postgres -d fin_man
+psql -U fin -d fin_man -h localhost -W
 CREATE EXTENSION IF NOT EXISTS ltree;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 ```
 
-### generate migration file
+### 3. install backend dependency
+```
+cd backend
+npm install
+```
+
+### 4. generate migration file
 ```
 npm run db:generate
-npm run db:push
-npm run db:init_user
+npm run db:push_dev
+npm run db:init_user_dev
+npm run db:init_data_dev
 ```
 
 ### add table index
@@ -37,4 +44,8 @@ ALTER TABLE project_events
 ### Start the Fastify server as development mode
 ```
 npm run dev
+```
+or
+```
+pm2 start npm --name "finman-9091" -- run  start
 ```

@@ -30,8 +30,7 @@
     "db:drop": "drizzle-kit drop",
     "db:push_dev": "cross-env NODE_ENV=development drizzle-kit push",
     "db:init_user_dev": "cross-env NODE_ENV=development ts-node src/scripts/init-user.ts --trace-warnings",
-    "db:init_data_dev": "cross-env NODE_ENV=development ts-node src/scripts/init-data.ts --trace-warnings",
-    "db:book_compute_total_dev": "cross-env NODE_ENV=development ts-node src/scripts/service/book-compute-total.ts --trace-warnings"
+    "db:init_data_dev": "cross-env NODE_ENV=development ts-node src/scripts/init-data.ts --trace-warnings"
   },
   "dependencies": {
     "@fastify/autoload": "^6.3.0",
